@@ -39,3 +39,4 @@ co2<-ggplot(df.co, aes(x = log.width, y = log.weight, group = SC,color = SC,shap
 ggarrange(cb1,cb2,co1, co2 +rremove("x.text"),
 labels = c("a.)", "b.)", "c.)", "d.)"),
 ncol = 2, nrow = 2)
+

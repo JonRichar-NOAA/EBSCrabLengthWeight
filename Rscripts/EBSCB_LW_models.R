@@ -6,7 +6,7 @@ library(stats)
 library(nlme)
 library(ggpubr)
 
-setwd("C:/Users/Jon.Richar/Work/Projects/Length_weight/DATA")
+setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA")
 df<-read.csv("EBSCB_weightDB_analysis.csv")
 df1<-subset(df, WEIGHT>0 & SEX==1)
 colnames(df1)
@@ -130,6 +130,10 @@ coef(fit2)
 
 cf2<-as.matrix(coef(fit2))
 
+# log(W) = -8.204571  + 3.014254 * log(L) on transformed scale
+# W = exp(-8.204571) * L^(3.014254)  on original scale
+# a = 0.000273401
+# b = 3.014254
 ##############################################################################################
 ######################## Apply bias-correction procedure #####################################
 cf2
@@ -155,6 +159,22 @@ sdA_base
 ##################### BIAS-CORRECTED PARAMETERS FOR NEW SHELL MODEL ###############################
 # a = 0.0002743986
 # b = 3.014254
+cf2[2,1]
+
+dev.new()
+plot(WEIGHT~WIDTH,data=ns_males_analysis, main = "New shell male Bairdi",ylab= "Weight (g)", xlab= "Width (mm)")
+
+
+x<-ns_males_analysis$WIDTH
+
+g<-function(x) {0.0002743986 *x^(3.014254)} #bias corrected
+f<-function(x) {0.000273401 *x^(3.014254)}# not corrected
+h<-function(x) {0.00027*x^(3.022134)} #baseline
+
+lines(x,g(x),col=2,lwd=2)#bias corrected
+#lines(x,f(x),col=4,lwd=2)# not corrected
+lines(x,h(x),col=4,lwd=2)# baseline
+legend(40,1550, c("Baseline L-W model", "SC based L-W model"), col=c(4,2),lwd=c(2,2))
 
 ###################################################################################################
 ############################ Old shell ############################################################
@@ -224,8 +244,14 @@ coef(fit4)
 cf4<-as.matrix(coef(fit4))
 
 plot(log.weight~log.width,data=os_males_analysis)
+
 abline(a=cf2[1,1],b=cf2[2,1])
 abline(a=cf4[1,1],b=cf4[2,1])
+exp(-8.478206)
+# log(W) = -8.478206 + 3.091966 * log(L) on transformed scale
+# W = exp(-8.478206) * L^(3.091966)  on original scale
+# a = 0.0002079514
+# b = 3.091966
 
 ################################################################################################
 ######################## Apply bias-correction procedure #####################################
@@ -234,7 +260,7 @@ v4<-(summary(fit4)$sigma)**2  #Variance
 v4
 int<-cf4[1,1]
 A<-(exp(int)*exp(v4/2))
-A                         #0.0004818917 
+A                         #0.0002083584
 
 ####################### Variance for parameter A/intercept ########################################
 #vcov(fit2)
@@ -242,13 +268,61 @@ Av<-vcov(fit4)[1,1]   #extract variance for intercept
 sd<-sqrt(Av)          #take square root to create standard deviation
 sd
 sdA<-(exp(sd)*exp(v4/2))
-sdA
+sdA                       #1.046375
 
 sdA_base<-exp(sd)
-sdA_base
+sdA_base                  #1.044331
 ##################### BIAS-CORRECTED PARAMETERS FOR OLD SHELL MODEL ###############################
 # a = 0.0002083584
 # b = 3.091966
+
+plot(WEIGHT~WIDTH,data=os_males_analysis, main = "Old shell male Bairdi")
+
+
+x<-os_males_analysis$WIDTH
+g<-function(x) {0.0002083584 *x^(3.091966)} #bias corrected
+f<-function(x) {0.0002083584 *x^(3.091966)}# not corrected
+h<-function(x) {0.00027*x^(3.022134)} #baseline
+
+lines(x,g(x),col=2,lwd=2)#bias corrected
+lines(x,f(x),col=4,lwd=2)# not corrected
+lines(x,h(x),col=3,lwd=2)# baseline
+legend(40,1800, c("Baseline L-W model", "SC based L-W model"), col=c(3,2),lwd=c(2,2))
+
+############################ Plot above as two panel figure with both new shell and old shell males ##############################
+dev.new()
+par(mfrow =c(2,1))
+
+# New shell
+plot(WEIGHT~WIDTH,data=ns_males_analysis, main = "New shell male Bairdi",ylab= "Weight (g)", xlab= "Width (mm)")
+
+
+x<-ns_males_analysis$WIDTH
+
+g<-function(x) {0.0002743986 *x^(3.014254)} #bias corrected
+f<-function(x) {0.000273401 *x^(3.014254)}# not corrected
+h<-function(x) {0.00027*x^(3.022134)} #baseline
+
+lines(x,g(x),col=2,lwd=2)#bias corrected
+#lines(x,f(x),col=4,lwd=2)# not corrected
+lines(x,h(x),col=4,lwd=2)# baseline
+legend(15,1550, c("Baseline L-W model", "SC based L-W model"), col=c(4,2),lwd=c(2,2))
+
+#Old shell
+
+plot(WEIGHT~WIDTH,data=os_males_analysis, main = "Old shell male Bairdi",ylab= "Weight (g)", xlab= "Width (mm)")
+
+
+x<-os_males_analysis$WIDTH
+g<-function(x) {0.0002083584 *x^(3.091966)} #bias corrected
+#f<-function(x) {0.0002083584 *x^(3.091966)}# not corrected
+h<-function(x) {0.00027*x^(3.022134)} #baseline
+
+lines(x,g(x),col=2,lwd=2)#bias corrected
+#lines(x,f(x),col=4,lwd=2)# not corrected
+lines(x,h(x),col=4,lwd=2)# baseline
+legend(38,1800, c("Baseline L-W model", "SC based L-W model"), col=c(4,2),lwd=c(2,2))
+
 ############################ combine data sets and plot, using shell condition as grouping factor############################################################
 os_males_analysis$SC <- "OS"
 ns_males_analysis$SC <- "NS"

@@ -6,8 +6,8 @@ library(stats)
 library(nlme)
 library(ggpubr)
 library(ggsci)
+setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA")
 
-setwd("C:/Users/Jon.Richar/Work/Projects/Length_weight/DATA")
 df<-read.csv("BBRKC_weightDB_analysis.csv")
 df1<-subset(df, WEIGHT>0 & SEX==1)
 colnames(df1)
@@ -249,6 +249,13 @@ plot(log.weight~log.length,data=os_males_analysis)
 abline(a=cf2[1,1],b=cf2[2,1])
 abline(a=cf4[1,1],b=cf4[2,1])
 
+cf4
+exp(-7.639845)
+
+# log(W) = -7.639845  + 3.111166 * log(L) on transformed scale
+# W = exp(-7.639845) * L^(3.111166)  on original scale
+# a = 0.000480903
+# b = 3.111166
 ################################################################################################
 ######################## Apply bias-correction procedure #####################################
 ###############################################################################################
@@ -270,7 +277,7 @@ sdA_base<-exp(sd)
 sdA_base
 ##################### BIAS-CORRECTED PARAMETERS FOR OLD SHELL MODEL ###############################
 # a = 0.0004818917 
-# b = 3.11117
+# b = 3.111166
 ########################################################################################################################################
 ############################ combine data sets and plot, using shell condition as grouping factor############################################################
 os_males_analysis$SC <- "OS"
