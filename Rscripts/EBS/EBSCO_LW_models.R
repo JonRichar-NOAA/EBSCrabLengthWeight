@@ -6,7 +6,7 @@ library(stats)
 library(nlme)
 library(ggpubr)
 
-setwd("C:/Users/Jon.Richar/Work/Projects/Length_weight/DATA")
+setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA")
 df<-read.csv("EBSCO_weightDB_analysis.csv")
 df1<-subset(df, WEIGHT>0 & SEX==1)
 colnames(df1)
@@ -128,8 +128,11 @@ summary(fit2)
 coef(fit2)
 
 cf2<-as.matrix(coef(fit2))
-
-
+exp(-8.347634)
+# log(W) = -8.347634  + 3.11951 * log(L) on transformed scale
+# W = exp(-8.347634) * L^(3.11951)  on original scale
+# a = 0.0002369565
+# b = 3.11951
 ##############################################################################################
 ######################## Apply bias-correction procedure #####################################
 cf2
@@ -226,6 +229,13 @@ plot(log.weight~log.width,data=os_males_analysis)
 abline(a=cf2[1,1],b=cf2[2,1])
 abline(a=cf4[1,1],b=cf4[2,1])
 
+cf4
+exp(-7.978278)
+
+# log(W) = -7.978278 + 3.051748 * log(L) on transformed scale
+# W = exp(-7.978278) * L^(3.051748)  on original scale
+# a = 0.0003428293
+# b = 3.051748
 ################################################################################################
 ######################## Apply bias-correction procedure #####################################
 ###############################################################################################

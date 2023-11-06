@@ -44,12 +44,12 @@ labs(color = "Category",x = "Carapace length (mm)", y = "Percent difference",tit
 ggplot(pct_dif,aes(x=Size10mm))+
 geom_line(aes(y=EBSCB_NS_pct_dif,color = "EBSCB NS"))+
 geom_line(aes(y=EBSCB_OS_pct_dif,color="EBSCB OS"))+
-labs(color = "Category",x = "Carapace width(mm)", y = "Percent difference",title="Eastern Bering Sea Bairdi crab")
+labs(color = "Category",x = "Carapace width(mm)", y = "Percent difference",title="Eastern Bering Sea Tanner crab")
 
 cb<-ggplot(pct_dif,aes(x=Size10mm))+
 geom_line(aes(y=EBSCB_NS_pct_dif,color = "EBSCB NS"))+
 geom_line(aes(y=EBSCB_OS_pct_dif,color="EBSCB OS"))+
-labs(color = "Category",x = "Carapace width(mm)", y = "Percent difference",title="Eastern Bering Sea Bairdi crab")
+labs(color = "Category",x = "Carapace width(mm)", y = "Percent difference",title="Eastern Bering Sea Tanner crab")
 
 ggplot(pct_dif,aes(x=Size10mm))+
 geom_line(aes(y=EBSCO_NS_pct_dif,color = "EBSCO NS"))+
