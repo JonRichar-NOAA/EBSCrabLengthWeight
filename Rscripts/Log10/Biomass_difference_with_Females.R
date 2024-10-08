@@ -7,7 +7,9 @@ library(nlme)
 library(ggpubr)
 library(ggplot2)
 
-setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA/Biomass_DATA")
+#setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA/Biomass_DATA")
+
+setwd("C:/Users/jon.richar/Work/GitRepos/EBSCrabLengthWeight/DATA/Biomass_DATA")
 ##################### Add data ###############################################
 bbrkc_base<-read.csv("rk_bb_bio_oldmodel.csv")
 bbrkc_new<-read.csv("rk_bb_bio_newmodel.csv")
@@ -115,6 +117,10 @@ bbrkc_mat_dif<-((bbrkc_new_mat-bbrkc_base_mat)/bbrkc_base_mat)*100
 
 mean(bbrkc_mat_dif)
 
+abs_bbrkc_mat_dif<-(abs(bbrkc_new_mat-bbrkc_base_mat)/bbrkc_base_mat)*100
+
+mean(abs_bbrkc_mat_dif)
+
 bbrkc_leg_dif<-((bbrkc_new_leg-bbrkc_base_leg)/bbrkc_base_leg)*100
 
 mean(bbrkc_leg_dif)
@@ -147,82 +153,200 @@ mean(co_leg_dif)
 ##################### Calculate perecent differences of bias corrected vs standard series #########
 ##################### ((N-O)/O)*100 ##############################################################
 
-#################### BBRKC
+################################ BBRKC #######################################################
+#################### Mature male
 bbrkc_bias_mat_dif<-((bbrkc_bias_mat - bbrkc_base_mat)/bbrkc_base_mat)*100
 
 mean(bbrkc_bias_mat_dif)
+
+### Absolute difference 
+
+bbrkc_bias_mat_abs<-(abs(bbrkc_bias_mat - bbrkc_base_mat)/bbrkc_base_mat)*100
+
+mean(bbrkc_bias_mat_abs)
+
+################### Legal male
 
 bbrkc_bias_leg_dif<-((bbrkc_bias_leg - bbrkc_base_leg)/bbrkc_base_leg)*100
 
 mean(bbrkc_bias_leg_dif)
 
+### Absolute difference
+
+bbrkc_bias_leg_abs<-(abs(bbrkc_bias_leg - bbrkc_base_leg)/bbrkc_base_leg)*100
+
+mean(bbrkc_bias_leg_abs)
+
+################### Mature female - ovig status
 bbrkc_bias_matfem_ovig_status_dif<-((bbrkc_matfem_ovig_status_bias - bbrkc_matfem_base)/bbrkc_matfem_base)*100
 
 mean(bbrkc_bias_matfem_ovig_status_dif)
 
+### Absolute difference
+
+bbrkc_bias_matfem_ovig_status_abs<-(abs(bbrkc_matfem_ovig_status_bias - bbrkc_matfem_base)/bbrkc_matfem_base)*100
+
+mean(bbrkc_bias_matfem_ovig_status_abs)
+
+################### Females - Maturity status
+
 bbrkc_bias_matfem_maturity_status_dif<-((bbrkc_matfem_maturity_status_bias - bbrkc_matfem_base)/bbrkc_matfem_base)*100
 
 mean(bbrkc_bias_matfem_maturity_status_dif)
+
+### Absolute difference
+
+bbrkc_bias_matfem_maturity_status_abs<-(abs(bbrkc_matfem_maturity_status_bias - bbrkc_matfem_base)/bbrkc_matfem_base)*100
+
+mean(bbrkc_bias_matfem_maturity_status_abs)
 
 #################### SMBKC 
 bkc_bias_recruit_dif<-((bkc_bias_recruit - bkc_base_recruit)/bkc_base_recruit)*100
 
 mean(bkc_bias_recruit_dif,na.rm= T)
 
+#################### mature males
 bkc_bias_mat_dif<-((bkc_bias_mat - bkc_base_mat)/bkc_base_mat)*100
 
 mean(bkc_bias_mat_dif,na.rm= T)
 
+#### Absolute diff
+
+bkc_bias_mat_abs<-(abs(bkc_bias_mat - bkc_base_mat)/bkc_base_mat)*100
+
+mean(bkc_bias_mat_abs,na.rm= T)
+
+##################### Legal males
 bkc_bias_leg_dif<-((bkc_bias_leg - bkc_base_leg)/bkc_base_leg)*100
 
-mean(bkc_bias_leg_dif,na.rm= T)
+mean(bkc_bias_leg_dif,na.rm = T)
 
+### Absolute diff
+
+bkc_bias_leg_abs<-(abs(bkc_bias_leg - bkc_base_leg)/bkc_base_leg)*100
+
+mean(bkc_bias_leg_abs,na.rm= T)
+
+#################### Mature females
 bkc_bias_matfem_dif<-((bkc_matfem_bias - bkc_matfem_base)/bkc_matfem_base)*100
 
 mean(bkc_bias_matfem_dif,na.rm= T)
 
+### Absolute diff
 
-#################### Bairdi
+bkc_bias_matfem_abs<-(abs(bkc_matfem_bias - bkc_matfem_base)/bkc_matfem_base)*100
+
+mean(bkc_bias_matfem_abs,na.rm= T)
+
+############################## Bairdi
+
+##################### East ############################################
+
+##################### Mature males
 e166cb_bias_mat_dif<-((e166cb_bias_mat - e166cb_base_mat)/e166cb_base_mat)*100
 
 mean(e166cb_bias_mat_dif)
+
+### Absolute diff
+
+e166cb_bias_mat_abs<-(abs(e166cb_bias_mat - e166cb_base_mat)/e166cb_base_mat)*100
+
+mean(e166cb_bias_mat_abs)
+
+##################### Legal males
 
 e166cb_bias_leg_dif<-((e166cb_bias_leg - e166cb_base_leg)/e166cb_base_leg)*100
 
 mean(e166cb_bias_leg_dif)
 
+### Absolute dif
+
+e166cb_bias_leg_abs<-(abs(e166cb_bias_leg - e166cb_base_leg)/e166cb_base_leg)*100
+
+mean(e166cb_bias_leg_abs)
+
+##################### Mature females 
+e166cb_bias_matfem_dif<-((e166cb_bias_matfem - e166cb_base_matfem)/e166cb_base_matfem)*100
+
+mean(e166cb_bias_matfem_dif)
+
+### Absolute dif
+
+e166cb_bias_matfem_abs<-(abs(e166cb_bias_matfem - e166cb_base_matfem)/e166cb_base_matfem)*100
+
+mean(e166cb_bias_matfem_abs)
+
+####################### West ######################################
+###################### Mature males
 w166cb_bias_mat_dif<-((w166cb_bias_mat - w166cb_base_mat)/w166cb_base_mat)*100
 
 mean(w166cb_bias_mat_dif)
+
+### Absolute value
+w166cb_bias_mat_abs<-(abs(w166cb_bias_mat - w166cb_base_mat)/w166cb_base_mat)*100
+
+mean(w166cb_bias_mat_abs)
+
+##################### Legal males
 
 w166cb_bias_leg_dif<-((w166cb_bias_leg - w166cb_base_leg)/w166cb_base_leg)*100
 
 mean(w166cb_bias_leg_dif)
 
+### Absolute value
+w166cb_bias_leg_abs<-(abs(w166cb_bias_leg - w166cb_base_leg)/w166cb_base_leg)*100
 
-e166cb_bias_matfem_dif<-((e166cb_bias_matfem - e166cb_base_matfem)/e166cb_base_matfem)*100
+mean(w166cb_bias_leg_abs)
 
-mean(e166cb_bias_matfem_dif)
+##################### Mature females 
 
 w166cb_bias_matfem_dif<-((w166cb_bias_matfem - w166cb_base_matfem)/w166cb_base_matfem)*100
 
 mean(w166cb_bias_matfem_dif)
 
-#################### Opilio
+### Absolute dif
+
+w166cb_bias_matfem_abs<-(abs(w166cb_bias_matfem - w166cb_base_matfem)/w166cb_base_matfem)*100
+
+mean(w166cb_bias_matfem_abs)
+
+################################# Opilio
+
+##################### Mature males
 co_bias_mat_dif<-((co_bias_mat - co_base_mat)/co_base_mat)*100
 
 mean(co_bias_mat_dif)
+
+### Absolute dif
+
+co_bias_mat_abs<-(abs(co_bias_mat - co_base_mat)/co_base_mat)*100
+
+mean(co_bias_mat_abs)
+
+###################### Legal males
 
 co_bias_leg_dif<-((co_bias_leg - co_base_leg)/co_base_leg)*100
 
 mean(co_bias_leg_dif)
 
+### Absolute dif
+co_bias_leg_abs<-(abs(co_bias_leg - co_base_leg)/co_base_leg)*100
+
+mean(co_bias_leg_abs)
+
+###################### Mature females 
 co_bias_matfem_dif<-((co_bias_matfem - co_base_matfem)/co_base_matfem)*100
 
 mean(co_bias_leg_dif)
 
+### Absolute dif
+
+co_bias_matfem_abs<-(abs(co_bias_matfem - co_base_matfem)/co_base_matfem)*100
+
+mean(co_bias_leg_abs)
+
 ##################################################################################################
-##################### Calculate perecent differences of bias corrected vs new model series#########
+##################### Calculate percent differences of bias corrected vs new model series#########
 ##################### ((N-O)/O)*100 ##############################################################
 
 bbrkc_bias2_mat_dif<-((bbrkc_bias_mat-bbrkc_new_mat)/bbrkc_new_mat)*100
@@ -239,7 +363,7 @@ mean(e166cb_bias2_mat_dif)
 
 e166cb_bias2_leg_dif<-((e166cb_bias_leg - e166cb_new_leg)/e166cb_new_leg)*100
 
-mean(e166cb2_bias_leg_dif)
+mean(e166cb_bias2_leg_dif)
 
 w166cb_bias2_mat_dif<-((w166cb_bias_mat - w166cb_new_mat)/w166cb_new_mat)*100
 
@@ -561,4 +685,95 @@ ggarrange(rkc_bias2, e166_bias2,w166_bias2, ebs_co_bias2,
           labels = c("a.)", "b.)", "c.)", "d.)"),
           ncol = 2, nrow = 2)
 
+##############################################################################################
+################################ DEVIANCES ###################################################
+#######################ev#####################################################################
 
+#################### BBRKC
+bbrkc_bias_mat_dev<-abs(bbrkc_bias_mat - bbrkc_base_mat)
+bbrkc_bias_mat_dev
+mean(bbrkc_bias_mat_dev)
+
+bbrkc_bias_leg_dev<-abs(bbrkc_bias_leg - bbrkc_base_leg)
+
+mean(bbrkc_bias_leg_dev)
+
+bbrkc_bias_matfem_ovig_status_dev<-abs(bbrkc_matfem_ovig_status_bias - bbrkc_matfem_base)
+
+mean(bbrkc_bias_matfem_ovig_status_dev)
+
+bbrkc_bias_matfem_maturity_status_dev<-abs(bbrkc_matfem_maturity_status_bias - bbrkc_matfem_base)
+
+mean(bbrkc_bias_matfem_maturity_status_dev)
+
+#################### SMBKC 
+bkc_bias_recruit_dev<-abs(bkc_bias_recruit - bkc_base_recruit)
+
+mean(bkc_bias_recruit_dev,na.rm= T)
+
+#################### mature males
+bkc_bias_mat_dev<-abs(bkc_bias_mat - bkc_base_mat)
+
+mean(bkc_bias_mat_dev,na.rm= T)
+
+
+
+##################### Legal males
+bkc_bias_leg_dev<-abs(bkc_bias_leg - bkc_base_leg)
+
+mean(bkc_bias_leg_dev,na.rm= T)
+
+
+##################### mature females
+bkc_bias_matfem_dev<-abs(bkc_matfem_bias - bkc_matfem_base)
+
+mean(bkc_bias_matfem_dev,na.rm= T)
+
+
+#################### Bairdi
+e166cb_bias_mat_dev<-abs(e166cb_bias_mat - e166cb_base_mat)
+
+mean(e166cb_bias_mat_dev)
+
+e166cb_bias_leg_dev<-abs(e166cb_bias_leg - e166cb_base_leg)
+
+mean(e166cb_bias_leg_dev)
+
+#### West mature males
+w166cb_bias_mat_dev<-abs(w166cb_bias_mat - w166cb_base_mat)
+
+mean(w166cb_bias_mat_dev)
+
+
+#### West legal males
+
+w166cb_bias_leg_dev<-abs(w166cb_bias_leg - w166cb_base_leg)
+
+mean(w166cb_bias_leg_dev)
+
+#Absolute value
+abs_w166cb_bias_leg_dev<-abs(w166cb_bias_leg - w166cb_base_leg)
+
+mean(abs_w166cb_bias_leg_dev)
+
+
+e166cb_bias_matfem_dev<-abs(e166cb_bias_matfem - e166cb_base_matfem)
+
+mean(e166cb_bias_matfem_dev)
+
+w166cb_bias_matfem_dev<-abs(w166cb_bias_matfem - w166cb_base_matfem)
+
+mean(w166cb_bias_matfem_dev)
+
+#################### Opilio
+co_bias_mat_dev<-abs(co_bias_mat - co_base_mat)
+
+mean(co_bias_mat_dev)
+
+co_bias_leg_dev<-abs(co_bias_leg - co_base_leg)
+
+mean(co_bias_leg_dev)
+
+co_bias_matfem_dev<-abs(co_bias_matfem - co_base_matfem)
+
+mean(co_bias_matfem_dev)

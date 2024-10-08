@@ -6,7 +6,7 @@ library(stats)
 library(nlme)
 library(ggpubr)
 
-setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA")
+setwd("C:/Users/jon.richar/Work/GitRepos/EBSCrabLengthWeight/DATA")
 df<-read.csv("EBSCB_weightDB_analysis.csv")
 
 df1<-subset(df, WEIGHT>0 & SEX==2)
@@ -341,10 +341,10 @@ plot(log.weight~log.width,data=os_matfemales_analysis)
 abline(a=cf2[1,1],b=cf2[2,1])
 abline(a=cf4[1,1],b=cf4[2,1])
 exp(-7.35470)
-# log(W) = -7.35470 + 2.82084 * log(L) on transformed scale       #updated for females
-# W = exp(-7.35470) * L^(2.82084)  on original scale              #updated for females
+# log(W) = -7.354703 + 2.820837 * log(L) on transformed scale       #updated for females
+# W = exp(-7.354703) * L^(2.820837)  on original scale              #updated for females
 # a = 0.0006395793                                                #updated for females
-# b = 2.82084                                                     #updated for females
+# b = 2.820837                                                    #updated for females
 
 ################################################################################################
 ######################## Apply bias-correction procedure #####################################

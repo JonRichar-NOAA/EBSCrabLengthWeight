@@ -7,7 +7,7 @@ library(stats)
 library(nlme)
 library(ggpubr)
 getwd()
-setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA")
+setwd("C:/Users/Jon.Richar/Work/GitRepos/EBSCrabLengthWeight/DATA")
 df<-read.csv("BBRKC_weightDB_analysis.csv")
 
 df1<-subset(df, WEIGHT>0 & SEX==2)
@@ -34,13 +34,10 @@ ns_nonovigfemales<-subset(df1,SEX==2 & CLUTCH_SIZE<=1 & SHELL_CONDITION==2)
 
 all_ovigfemales<-subset(df1,SEX==2 & CLUTCH_SIZE>1)
 
+ns_ovigfemales<-subset(df1,SEX==2 & CLUTCH_SIZE>1& SHELL_CONDITION==2)
 
 
 
-
-#####################################################################################################################
-############################ First model L-W relationship by shell condition #########################################
-#####################################################################################################################
 
 
 ######################################################################################################
@@ -181,6 +178,7 @@ cf.cold<-as.matrix(coef(fit.cold))
 
 fit.warm<-lm(log.weight~log.length,data=warm_ns_females)
 summary(fit.warm)
+coef(fit.warm)
 cf.warm<-as.matrix(coef(fit.warm))
 
 ###################################################################################################
@@ -210,7 +208,7 @@ sdA_base
 
 v.warm<-(summary(fit.warm)$sigma)**2  #Variance 
 v.warm
-int<-coef.warm[1,1]
+int<-cf.warm[1,1]
 A.warm<-(exp(int)*exp(v.warm/2))
 A.warm                         # = 0.006301011 
 ####################### Variance for parameter A/intercept ########################################
@@ -255,6 +253,7 @@ ggscatter(temp_ns_females, x="log.length",y="log.weight",color="TEMP", add="reg.
   stat_regline_equation(
     aes(label=paste(..eq.label.., ..rr.label.., sep="~~~~"), color = factor(TEMP))
   )
+
 
 
 dev.new()

@@ -6,7 +6,7 @@ library(stats)
 library(nlme)
 library(ggpubr)
 
-setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA")
+setwd("C:/Users/jon.richar/Work/GitRepos/EBSCrabLengthWeight/DATA")
 df<-read.csv("BBRKC_weightDB_analysis.csv")
 
 df1<-subset(df, WEIGHT>0 & SEX==2)
@@ -379,7 +379,7 @@ ns_matfemales_analysis$SC <- "NS"
 
 analysis_females<-rbind(ns_matfemales_analysis,os_matfemales_analysis)
 
-write.csv(analysis_females,"EBS_CO_Analysis_females.csv")
+write.csv(analysis_females,"BBRKC_Analysis_females.csv")
 
 ggplot(analysis_females, aes(x = LENGTH, y = WEIGHT, group = SC)) +
      geom_point(aes(colour = factor(SC)))
@@ -441,338 +441,321 @@ summary(reg_mod)
 
 
 
-
-
-
-##########################################################################################################################################################
-############################### Rerun shell condition models while limit data to same size ranges ##########################################################
-###########################################################################################################################################################
-
-
-
-
-
-
-x.lim=c(0,200)
-?hist()
-summary(os_matfemales_analysis$LENGTH)
-
-
-summary(ns_matfemales_analysis$LENGTH)
-
-
-dev.new()
-par(mfrow=c(2,1))
-hist(ns_matfemales_analysis$LENGTH,breaks=30,main="New shell size frequency",xaxt='n',xlim=x.lim)
-
-abline(v=mean(ns_matfemales_analysis$LENGTH),col=4)
-
-axis(side=1,at=seq(0,200,10),label=seq(0,200,10))
-
-hist(os_matfemales_analysis$LENGTH,breaks=20,main="Old shell size frequency",xaxt='n',xlim=x.lim)
-abline(v=mean(os_matfemales_analysis$LENGTH),col=4)
-axis(side=1,at=seq(0,200,10),label=seq(0,200,10))
-
-############################ Truncate new shells to match old shell size range ###################
-
-ns_matfemales_analysis_sub<-subset(ns_matfemales_analysis,LENGTH>36.0)
-
-
-############################ Fit followup model ##########################################
-fit5<-lm(log.weight~log.length,data=ns_matfemales_analysis_sub)
-summary(fit5)
-coef(fit5)
-
-cf5<-as.matrix(coef(fit5))
-cf5
-exp(-5.388513)
-			# log(W) = -8.414407 + 3.134860 * log(L) on transformed scale
-    			# W = exp(-8.36005)*L^(3.134860 )  on original scale
-			# a = 0.0002340326
-			# b = 3.134860
-
-p<-ggplot(ns_matfemales_analysis_sub, aes(x = log.length, y = log.weight)) +
-      geom_point()
-p+ labs(x="ln(width)",y="ln(weight)", title="New shell (SC2) females-log transformed")
-p+ geom_abline(intercept = cf5[1,1],slope = cf5[2,1],color = "red")
-
-
-
-####################################################################################################################################
-######################## Combine old shell and truncated new shell data and plot ##############################################################
-analysis_females_sub<-as.data.frame(rbind(ns_matfemales_analysis_sub,os_matfemales_analysis))
-
-
-########################### Non transformed ############################################################################
-q<-ggplot(analysis_females_sub, aes(x = LENGTH, y = WEIGHT, group = SC)) +
-     geom_point(aes(colour = SC))
-	q+ labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CO (New shell and old shell)")
-
-########################### Log transformed ##########################################################################
-dev.new()
-
-############################# points only ############################################################################
-ggplot(analysis_females_sub, aes(x = log.length, y = log.weight, group = SC)) +
-     geom_point(aes(colour = factor(SC)))+
-	labs(x="Ln(Length)",y="Ln(Weight)", title="Female BBRKC (New shell and old shell, log-transformed)")
-
-ebsco_sc_points_sub <- ggplot(analysis_females_sub, aes(x = log.length, y = log.weight, group = SC)) +
-     geom_point(aes(colour = SC))+
-	labs(x="Ln(Length)",y="Ln(Weight)", title="Female BBRKC (New shell and old shell, log transformed and truncated)")
-
-############################# lines ONLY ###############################################################################
-ggplot(analysis_females_sub, aes(x = log.length, y = log.weight, group = SC,color = SC,shape=SC)) +
-	geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
-	labs(x="Ln(Length)",y="Ln(Weight)", title="Female BBRKC(New shell and old shell, log-transformed)")
-
-
-ebsco_sc_lines_sub <-ggplot(analysis_females_sub, aes(x = log.length, y = log.weight, group = SC,color = SC,shape=SC)) +
-	geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
-	labs(x="Ln(Length)",y="Ln(Weight)", title="Female BBRKC(New shell and old shell,log transformed and truncated)")
-
-
-############################# with points and lines#####################################################################
-ggplot(analysis_females_sub, aes(x = log.length, y = log.weight, group = SC,color = SC,shape=SC)) +
-     geom_point()+
-geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
-labs(x="Ln(Length)",y="Ln(Weight)", title="Female BBRKC(New shell and old shell log-transformed)")
-
-######################  Alternative approach #########################################################################
-ggscatter(analysis_females_sub, x="log.length",y="log.weight",color="SC", add="reg.line"
-)+
-stat_regline_equation(
-aes(label=paste(..eq.label.., ..rr.label.., sep="~~~~"), color = factor(SC))
-)
-
 ########################################################################################################################
-############################### 4 panel ################################################################################
+############################ Assess SC2 males ONLY by cold/warm year periods - Period 1 ###########################################
+########################################################################################################################
 
-ggarrange(ebsco_sc_points, ebsco_sc_lines, ebsco_sc_points_sub, ebsco_sc_lines_sub,
-labels = c("a.)", "b.)", "c.)", "d.)"),
-ncol = 2, nrow = 2)
+# Basis for this analysis is that cold conditions may reduce fitness/growth as of survey
+# rerun new shell analyses as above but with new shell data divided by warm/cold year as determined
+# by whether a leg 3 retow was required for females. Apply ANCOVA procedures to test for difference 
+# between regression lines.
+# Cold years (from tech memo, years with retows):2000, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2017
+# Warm years (from tech memo, years without retow): 2001, 2002, 2003, 2004, 2005, 2013, 2014, 2015, 2016, 2018, 2019
 
+warm_females<-subset(ns_matfemales_analysis, YEAR==2001|YEAR==2002|YEAR==2003|YEAR==2004|YEAR==2005|YEAR==2013|YEAR==2014|YEAR==2015|YEAR==2016|YEAR==2018|YEAR==2019)
+cold_females<-subset(ns_matfemales_analysis, YEAR==2000|YEAR==2006|YEAR==2007|YEAR==2008|YEAR==2009|YEAR==2010|YEAR==2011|YEAR==2012|YEAR==2017)
 
+warm_ns_females<-subset(warm_females,SC=="NS")
+
+cold_ns_females<-subset(cold_females,SC=="NS")
+
+warm_ns_females$TEMP <- "WARM"
+cold_ns_females$TEMP <- "COLD"
+cold_ns_females$COLOR <- 1
+warm_ns_females$COLOR <- 4
+
+temp_ns_females<-rbind(warm_ns_females,cold_ns_females)
+
+nrow(cold_ns_females)
+nrow(warm_ns_females)
+###################################################################################################################
+############################### fit size-weight models ############################################################
+fit.cold<-lm(log.weight~log.length,data=cold_ns_females)
+summary(fit.cold)
+coef(fit.cold)
+cf.cold<-as.matrix(coef(fit.cold))
+
+fit.warm<-lm(log.weight~log.length,data=warm_ns_females)
+summary(fit.warm)
+coef.warm<-as.matrix(coef(fit.warm))
+
+###################################################################################################
+######################## Apply bias-correction procedure ##########################################
+###################################################################################################
+
+###################################################################################################
+######################### COLD YEARS ##############################################################
+v.cold<-(summary(fit.cold)$sigma)**2  #Variance 
+v.cold
+int<-cf.cold[1,1]
+A<-(exp(int)*exp(v.cold/2))
+A                         #0.0003686092
+
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit.cold)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+#sd
+sdA<-(exp(sd)*exp(v.cold/2))
+sdA
+
+sdA_base<-exp(sd)
+sdA_base
+################################################################################################
+######################## WARM YEARS ############################################################
+
+v.warm<-(summary(fit.warm)$sigma)**2  #Variance 
+v.warm
+int<-coef.warm[1,1]
+A<-(10^(int)*10^(v.warm/2))
+A                         #0.0005069227
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit.warm)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+#sd
+sdA<-(exp(sd)*exp(v.warm/2))
+sdA
+
+sdA_base<-exp(sd)
+sdA_base
+##################### BIAS-CORRECTED PARAMETERS FOR COLD NEW SHELL MODEL ###############################
+# a = 0.0003691035 
+# b = 3.157545
+##################### BIAS-CORRECTED PARAMETERS FOR WARM NEW SHELL MODEL ###############################
+# a = 0.0005074622  
+# b = 3.09928
 
 ########################################################################################################################
 ############################### Run ANCOVA analyses to determine if statistically different ############################
 
-mod1<-aov(log.weight~log.length*SC,data = analysis_females_sub)
-summary(mod1)									# p= 2e-16 on interaction term= significant interaction--suggests different slopes
+mod1<-aov(log.weight~log.length*TEMP,data = temp_ns_females)							# p = 0.000192 on interaction term = significant interaction--suggests different slopes
+summary(mod1)									
 
-mod2<-aov(log.weight~log.length+SC,data = analysis_females_sub)
-summary(mod2)									# p = 2e-16 for SC, SC-based regression lines have differing intercepts
+mod2<-aov(log.weight~log.length+TEMP,data = temp_ns_females)							# p < 2e-16 for TEMP: temperature-based regression lines have different slopes
+summary(mod2)									
 
-anova(mod1,mod2)									# p= 2.2e-16...removing interaction term sinificantly affects model
+anova(mod1,mod2)														# p = 0.0001924...removing interaction term significantly affects model								
 
-reg_mod<-lm(log.weight~SC/log.length-1,data=analysis_females_sub)		
+reg_mod<-lm(log.weight~TEMP/log.length-1,data = temp_ns_females)		
 summary(reg_mod)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-########################################## FOLLOWING CODE NOT ADAPTED FOR FEMALES ##################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if(FALSE){
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-########################################################################################################################
-############################### Truncate further at width = 76 mm(based on old shell first quartile) ######################################################
-ns_matfemales_analysis_sub2<-subset(ns_matfemales_analysis,WIDTH>76)
-os_matfemales_analysis_sub<-subset(os_matfemales_analysis,WIDTH>76)
-
-############################ Fit followup model - new shell ##########################################
-fit6<-lm(log.weight~log.length,data=ns_matfemales_analysis_sub2)
-summary(fit6)
-coef(fit6)
-
-cf6<-as.matrix(coef(fit6))
-			# log(W) = -8.588717  + 3.17365  * log(L) on transformed scale
-    			# W= exp(-8.588717*L^(3.17365)  on original scale
-			# a =  0.0001861948
-			# b = 3.17365
-
-############################ Fit followup model - old shell ##########################################
-fit7<-lm(log.weight~log.length,data=os_matfemales_analysis_sub)
-summary(fit7)
-coef(fit7)
-
-cf7<-as.matrix(coef(fit7))
-			# log(W) = -7.99453 + 3.055352  * log(L) on transformed scale
-    			# W = exp(-7.99453*L^(3.055352)  on original scale
-			# a =  0.0003373026
-			# b = 3.055352 
-
-p<-ggplot(ns_matfemales_analysis_sub2, aes(x = log.length, y = log.weight)) +
-      geom_point()
-p+ labs(x="ln(width)",y="ln(weight)", title="New shell (SC2) females-log transformed")
-p+ geom_abline(intercept = cf6[1,1],slope = cf6[2,1],color = "red")
-
-####################################################################################################################################
-######################## Combine old shell and truncated new shell data and plot ##############################################################
-
-analysis_females_sub2<-as.data.frame(rbind(ns_matfemales_analysis_sub2,os_matfemales_analysis_sub))
-
-
-########################### Non transformed ############################################################################
-q<-ggplot(analysis_females_sub2, aes(x = WIDTH, y = WEIGHT, group = SC)) +
-     geom_point(aes(colour = SC))
-	q+ labs(x="Ln(Width)",y="Ln(Weight)", title="Male EBS CO (New shell and old shell) females")
-
-########################### Log transformed ##########################################################################
+mod10<-anova(lm(log.weight~log.length,data = temp_ns_females),lm(log.weight~log.length*TEMP,data = temp_ns_females))
+summary(mod10)
+#################################Plot in GG plot ###############################################################################################
 dev.new()
 
-############################# po only ############################################################################
-ggplot(analysis_females_sub2, aes(x = log.length, y = log.weight, group = SC)) +
-     geom_point(aes(colour = factor(SC)))+
-	labs(x="Ln(Width)",y="Ln(Weight)", title="Male EBS CO (New shell and old shell, log-transformed)")
-
-ebsco_sc_points_sub2 <- ggplot(analysis_females_sub2, aes(x = log.length, y = log.weight, group = SC)) +
-     geom_point(aes(colour = SC))+
-	labs(x="Ln(Width)",y="Ln(Weight)", title="Male EBS CO (New shell and old shell, truncated at 76 mm)")
-
-############################# lines ONLY ###############################################################################
-ggplot(analysis_females_sub2, aes(x = log.length, y = log.weight, group = SC,color = SC,shape=SC)) +
-	geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
-	labs(x="Ln(Width)",y="Ln(Weight)", title="Male EBS CO(New shell and old shell, log-transformed)")
-
-
-ebsco_sc_lines_sub2 <-ggplot(analysis_females_sub2, aes(x = log.length, y = log.weight, group = SC,color = SC,shape=SC)) +
-	geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
-	labs(x="Ln(Width)",y="Ln(Weight)", title="Male EBS CO(New shell and old shell, truncated at 76 mm)")
-
-
-############################# with points and lines#####################################################################
-ggplot(analysis_females_sub2, aes(x = log.length, y = log.weight, group = SC,color = SC,shape=SC)) +
-     geom_point()+
-	geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
-	labs(x="Ln(Width)",y="Ln(Weight)", title="Male EBS CO (New shell and old shell log-transformed)")
-
-######################  Alternative approach #########################################################################
-ggscatter(analysis_females_sub2, x="log.length",y="log.weight",color="SC", add="reg.line"
+ggscatter(temp_ns_females, x="log.length",y="log.weight",color="TEMP", add="reg.line"
 )+
-stat_regline_equation(
-aes(label=paste(..eq.label.., ..rr.label.., sep="~~~~"), color = factor(SC))
-)
+  stat_regline_equation(
+    aes(label=paste(..eq.label.., ..rr.label.., sep="~~~~"), color = factor(TEMP))
+  )
 
+
+dev.new()
+
+############################### Points only - log-transformed ###########################################################
+ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP)) +
+  geom_point(aes(colour = factor(TEMP)))+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell,log-transformed)")
+
+bbrkc_temp_points<-ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP)) +
+  geom_point(aes(colour = TEMP))+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell,log-transformed)")
+
+# Points only - non-transformed 
+ggplot(temp_ns_females, aes(x = LENGTH, y = WEIGHT, group = TEMP)) +
+  geom_point(aes(colour = factor(TEMP)))+
+  labs(x="Length",y="Weight", title="Mature female BBRKC (New shell)")
+
+################################ lines ONLY #############################################################################
+ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell,log-transformed)")
+
+bbrkc_temp_lines <- ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell,log-transformed)")
+
+################################ with points and lines ##################################################################
+ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_point()+
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell, log-transformed)")
+
+temp_ns_females
+################################ with points and lines - custom color ##################################################################
+sp<-ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP,colour = TEMP,shape=TEMP)) +
+  geom_point()+
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell, log-transformed)")
+
+sp+scale_color_lancet()
 ########################################################################################################################
 ############################### 4 panel ################################################################################
-ggarrange(ebsco_sc_points,ebsco_sc_lines,ebsco_sc_points_sub2, ebsco_sc_lines_sub2,
-labels = c("a.)", "b.)", "c.)", "d.)"),
-ncol = 2, nrow = 2)
 
-dev.new()
+ggarrange(bbrkc_sc_points,bbrkc_sc_lines,bbrkc_temp_points, bbrkc_temp_lines +rremove("x.text"),
+          labels = c("a.)", "b.)", "c.)", "d.)"),
+          ncol = 2, nrow = 2)
 
-ggarrange(ebsco_sc_points_sub,ebsco_sc_lines_sub,ebsco_sc_points_sub2, ebsco_sc_lines_sub2,
-labels = c("a.)", "b.)", "c.)", "d.)"),
-ncol = 2, nrow = 2)
+
+
+########################################################################################################################
+############################ Assess SC2 males ONLY by cold/warm year periods - Period 2 - Five most extreme years for warm and cold ###########################################
+########################################################################################################################
+
+# Basis for this analysis is that cold conditions may reduce fitness/growth as of survey
+# rerun new shell analyses as above but with new shell data divided by warm/cold year as determined
+# by whether a leg 3 retow was required for females. Apply ANCOVA procedures to test for difference 
+# between regression lines.
+# Cold years (from tech memo, years with retows):2000, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2017
+# Warm years (from tech memo, years without retow): 2001, 2002, 2003, 2004, 2005, 2013, 2014, 2015, 2016, 2018, 2019
+
+warm_females<-subset(ns_matfemales_analysis, YEAR==2003|YEAR==2005|YEAR==2016|YEAR==2018|YEAR==2019)
+cold_females<-subset(ns_matfemales_analysis, YEAR==2007|YEAR==2008|YEAR==2009|YEAR==2010|YEAR==2012)
+
+warm_ns_females<-subset(warm_females,SC=="NS")
+
+cold_ns_females<-subset(cold_females,SC=="NS")
+
+warm_ns_females$TEMP <- "WARM"
+cold_ns_females$TEMP <- "COLD"
+cold_ns_females$COLOR <- 1
+warm_ns_females$COLOR <- 4
+
+temp_ns_females<-rbind(warm_ns_females,cold_ns_females)
+
+nrow(cold_ns_females)
+nrow(warm_ns_females)
+###################################################################################################################
+############################### fit size-weight models ############################################################
+fit.cold<-lm(log.weight~log.length,data=cold_ns_females)
+summary(fit.cold)
+coef(fit.cold)
+cf.cold<-as.matrix(coef(fit.cold))
+
+fit.warm<-lm(log.weight~log.length,data=warm_ns_females)
+summary(fit.warm)
+coef.warm<-as.matrix(coef(fit.warm))
+
+###################################################################################################
+######################## Apply bias-correction procedure ##########################################
+###################################################################################################
+
+###################################################################################################
+######################### COLD YEARS ##############################################################
+v.cold<-(summary(fit.cold)$sigma)**2  #Variance 
+v.cold
+int<-cf.cold[1,1]
+A<-(10^(int)*10^(v.cold/2))
+A                         #0.0003686092
+
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit.cold)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+#sd
+sdA<-(exp(sd)*exp(v.cold/2))
+sdA
+
+sdA_base<-exp(sd)
+sdA_base
+################################################################################################
+######################## WARM YEARS ############################################################
+
+v.warm<-(summary(fit.warm)$sigma)**2  #Variance 
+v.warm
+int<-coef.warm[1,1]
+A<-(exp(int)*exp(v.warm/2))
+A                         #0.0005069227
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit.warm)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+#sd
+sdA<-(exp(sd)*exp(v.warm/2))
+sdA
+
+sdA_base<-exp(sd)
+sdA_base
+##################### BIAS-CORRECTED PARAMETERS FOR COLD NEW SHELL MODEL ###############################
+# a = 0.0003691035 
+# b = 3.157545
+##################### BIAS-CORRECTED PARAMETERS FOR WARM NEW SHELL MODEL ###############################
+# a = 0.0005074622  
+# b = 3.09928
 
 ########################################################################################################################
 ############################### Run ANCOVA analyses to determine if statistically different ############################
 
-mod1<-aov(log.weight~log.length*SC,data = analysis_females_sub2)
-summary(mod1)									# p = 7.18e-10 on interaction term= significant interaction--suggests different slopes
+mod1<-aov(log.weight~log.length*TEMP,data = temp_ns_females)							# p = 0.000192 on interaction term = significant interaction--suggests different slopes
+summary(mod1)									
 
-mod2<-aov(log.weight~log.length+SC,data = analysis_females_sub2)
-summary(mod2)									# p <2e-16 for SC, SC-based regression lines have differing intercepts
+mod2<-aov(log.weight~log.length+TEMP,data = temp_ns_females)							# p < 2e-16 for TEMP: temperature-based regression lines have different slopes
+summary(mod2)									
 
-anova(mod1,mod2)									# p = 7.177e-10...removing interaction term sinificantly affects model
+anova(mod1,mod2)														# p = 0.0001924...removing interaction term significantly affects model								
 
-reg_mod<-lm(log.weight~SC/log.length-1,data=analysis_females_sub2)		
+reg_mod<-lm(log.weight~TEMP/log.length-1,data = temp_ns_females)		
 summary(reg_mod)
 
+mod10<-anova(lm(log.weight~log.length,data = temp_ns_females),lm(log.weight~log.length*TEMP,data = temp_ns_females))
+summary(mod10)
+#################################Plot in GG plot ###############################################################################################
+dev.new()
+
+ggscatter(temp_ns_females, x="log.length",y="log.weight",color="TEMP", add="reg.line"
+)+
+  stat_regline_equation(
+    aes(label=paste(..eq.label.., ..rr.label.., sep="~~~~"), color = factor(TEMP))
+  )
+
+
+dev.new()
+
+############################### Points only - log-transformed ###########################################################
+ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP)) +
+  geom_point(aes(colour = factor(TEMP)))+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell,log-transformed)")
+
+bbrkc_temp_points<-ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP)) +
+  geom_point(aes(colour = TEMP))+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell,log-transformed)")
+
+# Points only - non-transformed 
+ggplot(temp_ns_females, aes(x = LENGTH, y = WEIGHT, group = TEMP)) +
+  geom_point(aes(colour = factor(TEMP)))+
+  labs(x="Length",y="Weight", title="Mature female BBRKC (New shell)")
+
+################################ lines ONLY #############################################################################
+ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell,log-transformed)")
+
+bbrkc_temp_lines <- ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell,log-transformed)")
+
+################################ with points and lines ##################################################################
+ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_point()+
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell, log-transformed)")
+
+temp_ns_females
+################################ with points and lines - custom color ##################################################################
+sp<-ggplot(temp_ns_females, aes(x = log.length, y = log.weight, group = TEMP,colour = TEMP,shape=TEMP)) +
+  geom_point()+
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Mature female BBRKC (New shell, log-transformed)")
+
+sp+scale_color_lancet()
+
 ########################################################################################################################
-############################## USE ANCOVA TO COMPARE NEW SHELL AND NEW SHELL TRUNCATED SERIES ##########################
-########################################################################################################################
-ns_matfemales_analysis$Series<- "Base"
-ns_matfemales_analysis_sub$Series<- "Sub1"
-ns_matfemales_analysis_sub2$Series<- "Sub2"
+############################### 4 panel ################################################################################
 
-analysis_females_sub<-rbind(ns_matfemales_analysis,ns_matfemales_analysis_sub)
-analysis_females_sub2<-rbind(ns_matfemales_analysis_sub,ns_matfemales_analysis_sub2)
-analysis_females_sub3<-rbind(ns_matfemales_analysis,ns_matfemales_analysis_sub2)
-
-########################################################################################################################
-############################### Run ANCOVA analyses to determine if base and series 1 are statistically different ############################
-
-mod1<-aov(log.weight~log.length*Series,data = analysis_females_sub)
-summary(mod1)									# p = 0.00701 on interaction term=significant interaction--suggests different slopes
-
-mod2<-aov(log.weight~log.length+Series,data = analysis_females_sub)
-summary(mod2)									# p = 0.298 for series, regression lines do not have differing intercepts
-
-anova(mod1,mod2)									# p = 0.007013...removing interaction term does not sinificantly affect model
-
-reg_mod<-lm(log.weight~Series/log.length-1,data=analysis_females_sub)		
-summary(reg_mod)
-
-
-########################################################################################################################
-############################### Run ANCOVA analyses to determine if series 1 and 2 are statistically different ############################
-
-mod1<-aov(log.weight~log.length*Series,data = analysis_females_sub2)
-summary(mod1)									# p = 0.0111 on interaction term= significant interaction--suggests different slopes
-
-mod2<-aov(log.weight~log.length+Series,data = analysis_females_sub2)
-summary(mod2)									# p = 0.773 for series, regression lines do not have differing intercepts
-
-anova(mod1,mod2)									# p = 0.7623...removing interaction term does not sinificantly affect model
-
-reg_mod<-lm(log.weight~Series/log.length-1,data=analysis_females_sub2)		
-summary(reg_mod)
-
-
-########################################################################################################################
-############################### Run ANCOVA analyses to determine if series 1 and 2 are statistically different ############################
-
-mod1<-aov(log.weight~log.length*Series,data = analysis_females_sub3)
-summary(mod1)									# p = 0.00352l on interaction term= significant interaction--suggests different slopes
-
-mod2<-aov(log.weight~log.length+Series,data = analysis_females_sub3)
-summary(mod2)									# p = 0.198  for series, regression lines do not have differing intercepts
-
-anova(mod1,mod2)									# p = 0.003517...removing interaction term sinificantly affects model
-
-reg_mod<-lm(log.weight~Series/log.length-1,data=analysis_females_sub2)		
-summary(reg_mod)
-}
+ggarrange(bbrkc_sc_points,bbrkc_sc_lines,bbrkc_temp_points, bbrkc_temp_lines +rremove("x.text"),
+          labels = c("a.)", "b.)", "c.)", "d.)"),
+          ncol = 2, nrow = 2)
 
 

@@ -299,7 +299,8 @@ ns_males_analysis$SC <- "NS"
 
 analysis_males<-rbind(ns_males_analysis,os_males_analysis)
 names(analysis_males)
-
+names(analysis_males)
+write.csv(analysis_males,"SMBKC_Analysis_males_log10.csv")
 dev.new()
 
 ggplot(analysis_males, aes(x = LENGTH, y = WEIGHT, group = SC)) +

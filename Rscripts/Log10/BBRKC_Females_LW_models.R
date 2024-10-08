@@ -23,8 +23,8 @@ plot(df1$WEIGHT~df1$LENGTH)
 #          YEAR = as.factor(Year)) %>%
  #  filter(SEX == 2) -> female #Only SC2 as to not bias for weight of epibionts 
 #male
-ggplot(female, aes(x = LENGTH, y = WEIGHT, group = YEAR)) +
-     geom_point(aes(colour = factor(SHELL_CONDITION)))
+#ggplot(female, aes(x = LENGTH, y = WEIGHT, group = YEAR)) +
+#     geom_point(aes(colour = factor(SHELL_CONDITION)))
 
 
 ################################################################################
@@ -386,10 +386,10 @@ sdA_base
 ############################ combine data sets and plot, using shell condition as grouping factor############################################################
 os_matfemales_analysis$SC <- "OS"
 ns_matfemales_analysis$SC <- "NS"
+ns_immatfemales_analysis$SC<-"NS"
+analysis_females_log10<-rbind(ns_immatfemales_analysis,ns_matfemales_analysis,os_matfemales_analysis)
 
-analysis_females<-rbind(ns_matfemales_analysis,os_matfemales_analysis)
-
-write.csv(analysis_females,"EBS_CO_Analysis_females.csv")
+write.csv(analysis_females_log10,"BBRKC_Analysis_females_log10.csv")
 
 ggplot(analysis_females, aes(x = LENGTH, y = WEIGHT, group = SC)) +
      geom_point(aes(colour = factor(SC)))

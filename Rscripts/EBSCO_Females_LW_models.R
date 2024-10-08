@@ -6,7 +6,7 @@ library(stats)
 library(nlme)
 library(ggpubr)
 
-setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA")
+setwd("C:/Users/jon.richar/Work/GitRepos/EBSCrabLengthWeight/DATA")
 df<-read.csv("EBSCO_weightDB_analysis.csv")
 
 df1<-subset(df, WEIGHT>0 & SEX==2)
@@ -309,7 +309,7 @@ plot(cooks.distance(fit3), pch=16, cex=0.5, main="Cook's distance with critical 
 os_female$Cooks_D <- cooks.distance(fit3)
 os_matfemales_analysis<-subset(os_female, Cooks_D < (4/(nrow(os_female))))
  
-nrow(os_female)-nrow(os_matfemales_analysis)    #123 obs removed
+nrow(os_female)-nrow(os_matfemales_analysis)    #63 obs removed
 
 nrow(os_matfemales_analysis)
 
@@ -435,17 +435,9 @@ summary(reg_mod)
 
 
 
-
-
-
-
 ##########################################################################################################################################################
 ############################### Rerun shell condition models while limit data to same size ranges ##########################################################
 ###########################################################################################################################################################
-
-
-
-
 
 
 x.lim=c(0,200)

@@ -6,7 +6,7 @@ library(stats)
 library(nlme)
 library(ggpubr)
 
-setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA/")
+setwd("C:/Users/jon.richar/Work/GitRepos/EBSCrabLengthWeight/DATA")
 df<-read.csv("EBSCO_weightDB_analysis.csv")
 
 df1<-subset(df, WEIGHT>0 & SEX==2)
@@ -32,6 +32,7 @@ plot(df1$WEIGHT~df1$WIDTH)
 ########################## Aggregate by New shell/old shell #####################################
 
 noeggfemales<-subset(df1,SEX==2 & CLUTCH_SIZE<=1)
+ns_noeggfemales<-subset(df1,SEX==2 & CLUTCH_SIZE<=1 & SHELL_CONDITION==2)
 ns_eggfemales<-subset(df1,SEX==2 & CLUTCH_SIZE>1 & SHELL_CONDITION==2)
 os_eggfemales<-subset(df1,SEX==2 & CLUTCH_SIZE>1 & SHELL_CONDITION==3|SHELL_CONDITION==4)
 
@@ -57,9 +58,9 @@ p+ labs(title="Non-egg bearing females")
 Year <- substring(noeggfemales$CRUISE, 1,4) 
 
 YEAR <- as.factor(Year)
-log.width<-log(noeggfemales$WIDTH)
-log.weight <- log(noeggfemales$WEIGHT)
-ns_imfemale<-as.data.frame(cbind(noeggfemales,YEAR,log.width,log.weight))   		 # Bind new data objects and crab data in data frame  
+log.width<-log(ns_noeggfemales$WIDTH)
+log.weight <- log(ns_noeggfemales$WEIGHT)
+ns_imfemale<-as.data.frame(cbind(ns_noeggfemales,YEAR,log.width,log.weight))   		 # Bind new data objects and crab data in data frame  
 ns_imfemale                    							  		 # inspect data
 names(ns_imfemale)											 # Check column names
 

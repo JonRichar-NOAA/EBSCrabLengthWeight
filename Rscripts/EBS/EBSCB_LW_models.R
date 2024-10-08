@@ -6,7 +6,7 @@ library(stats)
 library(nlme)
 library(ggpubr)
 
-setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA")
+setwd("C:/Users/Jon.Richar/Work/GitRepos/EBSCrabLengthWeight/DATA")
 df<-read.csv("EBSCB_weightDB_analysis.csv")
 df1<-subset(df, WEIGHT>0 & SEX==1)
 colnames(df1)
@@ -391,6 +391,324 @@ summary(reg_mod)
 
 
 
+
+########################################################################################################################
+########################################################################################################################
+############################ Assess SC2 males ONLY by cold/warm year periods method 1 ###########################################
+########################################################################################################################
+
+# Basis for this analysis is that cold conditions may reduce fitness/growth as of survey
+# rerun new shell analyses as above but with new shell data divided by warm/cold year as determined
+# by whether a leg 3 retow was required for females. Apply ANCOVA procedures to test for difference 
+# between regression lines.
+# Cold years (from tech memo, years with retows):2000, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2017
+# Warm years (from tech memo, years without retow): 2001, 2002, 2003, 2004, 2005, 2013, 2014, 2015, 2016, 2018, 2019
+
+warm_males<-subset(analysis_males, YEAR==2001|YEAR==2002|YEAR==2003|YEAR==2004|YEAR==2005|YEAR==2013|YEAR==2014|YEAR==2015|YEAR==2016|YEAR==2018|YEAR==2019)
+cold_males<-subset(analysis_males, YEAR==2000|YEAR==2006|YEAR==2007|YEAR==2008|YEAR==2009|YEAR==2010|YEAR==2011|YEAR==2012|YEAR==2017)
+
+warm_ns_males<-subset(warm_males,SC=="NS")
+
+cold_ns_males<-subset(cold_males,SC=="NS")
+
+warm_ns_males$TEMP <- "WARM"
+cold_ns_males$TEMP <- "COLD"
+cold_ns_males$COLOR <- 1
+warm_ns_males$COLOR <- 4
+
+temp_ns_males<-rbind(warm_ns_males,cold_ns_males)
+
+nrow(cold_ns_males)
+nrow(warm_ns_males)
+###################################################################################################################
+############################### fit size-weight models ############################################################
+fit.cold<-lm(log.weight~log.width,data=cold_ns_males)
+summary(fit.cold)
+coef(fit.cold)
+cf.cold<-as.matrix(coef(fit.cold))
+
+fit.warm<-lm(log.weight~log.width,data=warm_ns_males)
+summary(fit.warm)
+coef(fit.warm)
+coef.warm<-as.matrix(coef(fit.warm))
+
+###################################################################################################
+######################## Apply bias-correction procedure ##########################################
+###################################################################################################
+
+###################################################################################################
+######################### COLD YEARS ##############################################################
+v.cold<-(summary(fit.cold)$sigma)**2  #Variance 
+v.cold
+int<-cf.cold[1,1]
+A<-(exp(int)*exp(v.cold/2))
+A                         #0.0002310341  
+
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit.cold)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+#sd
+sdA<-(exp(sd)*exp(v.cold/2))
+sdA
+
+sdA_base<-exp(sd)
+sdA_base
+################################################################################################
+######################## WARM YEARS ############################################################
+
+v.warm<-(summary(fit.warm)$sigma)**2  #Variance 
+v.warm
+int<-coef.warm[1,1]
+A<-(exp(int)*exp(v.warm/2))
+A                         #0.0002649991  
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit.warm)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+#sd
+sdA<-(exp(sd)*exp(v.warm/2))
+sdA
+
+sdA_base<-exp(sd)
+sdA_base
+##################### BIAS-CORRECTED PARAMETERS FOR COLD NEW SHELL MODEL ###############################
+# a = 0.0002310341 
+# b = 3.126483 
+##################### BIAS-CORRECTED PARAMETERS FOR WARM NEW SHELL MODEL ###############################
+# a = 0.0002521992  
+# b = 3.105468
+
+########################################################################################################################
+############################### Run ANCOVA analyses to determine if statistically different ############################
+
+mod1<-aov(log.weight~log.width*TEMP,data = temp_ns_males)							# p = 0.0105 on interaction term = significant interaction--suggests different slopes
+summary(mod1)									
+
+mod2<-aov(log.weight~log.width+TEMP,data = temp_ns_males)							# p = 3.57e-08 for TEMP: temperature-based regression lines have different slopes
+summary(mod2)									
+
+anova(mod1,mod2)														# p = 0.01043...removing interaction term significantly affects model								
+
+reg_mod<-lm(log.weight~TEMP/log.width-1,data = temp_ns_males)		
+summary(reg_mod)
+
+mod10<-anova(lm(log.weight~log.width,data = temp_ns_males),lm(log.weight~log.width*TEMP,data = temp_ns_males))
+summary(mod10)
+#################################Plot in GG plot ###############################################################################################
+dev.new()
+
+ggscatter(temp_ns_males, x="log.width",y="log.weight",color="TEMP", add="reg.line"
+)+
+  stat_regline_equation(
+    aes(label=paste(..eq.label.., ..rr.label.., sep="~~~~"), color = factor(TEMP))
+  )
+
+
+dev.new()
+
+############################### Points only - log-transformed ###########################################################
+ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP)) +
+  geom_point(aes(colour = factor(TEMP)))+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell,log-transformed)")
+
+ebscb_temp_points<-ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP)) +
+  geom_point(aes(colour = TEMP))+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell,log-transformed)")
+
+# Points only - non-transformed 
+ggplot(temp_ns_males, aes(x = WIDTH, y = WEIGHT, group = TEMP)) +
+  geom_point(aes(colour = factor(TEMP)))+
+  labs(x="Length",y="Weight", title="Male EBS CB (New shell)")
+
+################################ lines ONLY #############################################################################
+ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell,log-transformed)")
+
+ebscb_temp_lines <- ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell,log-transformed)")
+
+################################ with points and lines ##################################################################
+ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_point()+
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell, log-transformed)")
+
+temp_ns_males
+################################ with points and lines - custom color ##################################################################
+sp<-ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP,colour = TEMP,shape=TEMP)) +
+  geom_point()+
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell, log-transformed)")
+
+sp+scale_color_lancet()
+########################################################################################################################
+############################### 4 panel ################################################################################
+
+ggarrange(ebscb_sc_points,ebscb_sc_lines,ebscb_temp_points, ebscb_temp_lines +rremove("x.text"),
+          labels = c("a.)", "b.)", "c.)", "d.)"),
+          ncol = 2, nrow = 2)
+
+
+########################################################################################################################
+############################ Assess SC2 males ONLY by cold/warm year periods method 2 ###########################################
+########################################################################################################################
+
+# Basis for this analysis is that cold conditions may reduce fitness/growth as of survey
+# rerun new shell analyses as above but with new shell data divided by warm/cold year as determined
+# by whether a leg 3 retow was required for females. Apply ANCOVA procedures to test for difference 
+# between regression lines.
+# Cold years (from tech memo, years with retows):2000, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2017
+# Warm years (from tech memo, years without retow): 2001, 2002, 2003, 2004, 2005, 2013, 2014, 2015, 2016, 2018, 2019
+
+warm_males<-subset(analysis_males, YEAR==2003|YEAR==2005|YEAR==2016|YEAR==2018|YEAR==2019)
+cold_males<-subset(analysis_males, YEAR==2007|YEAR==2008|YEAR==2009|YEAR==2010|YEAR==2012)
+
+warm_ns_males<-subset(warm_males,SC=="NS")
+
+cold_ns_males<-subset(cold_males,SC=="NS")
+
+warm_ns_males$TEMP <- "WARM"
+cold_ns_males$TEMP <- "COLD"
+cold_ns_males$COLOR <- 1
+warm_ns_males$COLOR <- 4
+
+temp_ns_males<-rbind(warm_ns_males,cold_ns_males)
+
+nrow(cold_ns_males)
+nrow(warm_ns_males)
+###################################################################################################################
+############################### fit size-weight models ############################################################
+fit.cold<-lm(log.weight~log.width,data=cold_ns_males)
+summary(fit.cold)
+coef(fit.cold)
+cf.cold<-as.matrix(coef(fit.cold))
+
+fit.warm<-lm(log.weight~log.width,data=warm_ns_males)
+coef(fit.warm)
+summary(fit.warm)
+coef.warm<-as.matrix(coef(fit.warm))
+
+###################################################################################################
+######################## Apply bias-correction procedure ##########################################
+###################################################################################################
+
+###################################################################################################
+######################### COLD YEARS ##############################################################
+v.cold<-(summary(fit.cold)$sigma)**2  #Variance 
+v.cold
+int<-cf.cold[1,1]
+A<-(exp(int)*exp(v.cold/2))
+A                         #0.0002310341  
+
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit.cold)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+#sd
+sdA<-(exp(sd)*exp(v.cold/2))
+sdA
+
+sdA_base<-exp(sd)
+sdA_base
+################################################################################################
+######################## WARM YEARS ############################################################
+
+v.warm<-(summary(fit.warm)$sigma)**2  #Variance 
+v.warm
+int<-coef.warm[1,1]
+A<-(exp(int)*exp(v.warm/2))
+A                         #0.0002521992 
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit.warm)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+#sd
+sdA<-(exp(sd)*exp(v.warm/2))
+sdA
+
+sdA_base<-exp(sd)
+sdA_base
+##################### BIAS-CORRECTED PARAMETERS FOR COLD NEW SHELL MODEL ###############################
+# a = 0.0002310341 
+# b = 3.126483 
+##################### BIAS-CORRECTED PARAMETERS FOR WARM NEW SHELL MODEL ###############################
+# a = 0.0002521992  
+# b = 3.105468
+
+########################################################################################################################
+############################### Run ANCOVA analyses to determine if statistically different ############################
+
+mod1<-aov(log.weight~log.width*TEMP,data = temp_ns_males)							# p = 0.0104 on interaction term = significant interaction--suggests different slopes
+summary(mod1)									
+
+mod2<-aov(log.weight~log.width+TEMP,data = temp_ns_males)							# p = 0.446 for TEMP: temperature-based regression lines have different slopes
+summary(mod2)									
+
+anova(mod1,mod2)														# p = 0.01043...removing interaction term significantly affects model								
+
+reg_mod<-lm(log.weight~TEMP/log.width-1,data = temp_ns_males)		
+summary(reg_mod)
+
+mod10<-anova(lm(log.weight~log.width,data = temp_ns_males),lm(log.weight~log.width*TEMP,data = temp_ns_males))
+summary(mod10)
+#################################Plot in GG plot ###############################################################################################
+dev.new()
+
+ggscatter(temp_ns_males, x="log.width",y="log.weight",color="TEMP", add="reg.line"
+)+
+  stat_regline_equation(
+    aes(label=paste(..eq.label.., ..rr.label.., sep="~~~~"), color = factor(TEMP))
+  )
+
+
+dev.new()
+
+############################### Points only - log-transformed ###########################################################
+ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP)) +
+  geom_point(aes(colour = factor(TEMP)))+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell,log-transformed)")
+
+ebscb_temp_points<-ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP)) +
+  geom_point(aes(colour = TEMP))+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell,log-transformed)")
+
+# Points only - non-transformed 
+ggplot(temp_ns_males, aes(x = WIDTH, y = WEIGHT, group = TEMP)) +
+  geom_point(aes(colour = factor(TEMP)))+
+  labs(x="Length",y="Weight", title="Male EBS CB (New shell)")
+
+################################ lines ONLY #############################################################################
+ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell,log-transformed)")
+
+ebscb_temp_lines <- ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell,log-transformed)")
+
+################################ with points and lines ##################################################################
+ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP,color = TEMP,shape=TEMP)) +
+  geom_point()+
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell, log-transformed)")
+
+temp_ns_males
+################################ with points and lines - custom color ##################################################################
+sp<-ggplot(temp_ns_males, aes(x = log.width, y = log.weight, group = TEMP,colour = TEMP,shape=TEMP)) +
+  geom_point()+
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
+  labs(x="Ln(Length)",y="Ln(Weight)", title="Male EBS CB (New shell, log-transformed)")
+
+sp+scale_color_lancet()
+########################################################################################################################
+############################### 4 panel ################################################################################
+
+ggarrange(ebscb_sc_points,ebscb_sc_lines,ebscb_temp_points, ebscb_temp_lines +rremove("x.text"),
+          labels = c("a.)", "b.)", "c.)", "d.)"),
+          ncol = 2, nrow = 2)
 ##################################################################################################################################################
 
 

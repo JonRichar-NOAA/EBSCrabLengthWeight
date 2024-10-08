@@ -1,0 +1,128 @@
+drop table rkc_male_sw_temp_params;
+
+create table rkc_male_sw_temp_params as
+(SURVEY_YEAR              NUMBER,
+CRUISE                    NUMBER,
+MALE_WEIGHTED_GEAR_TEMP   NUMBER,
+a_base                    NUMBER,
+aT                       NUMBER,
+aT_OS                     NUMBER,
+aOS                       NUMBER,
+a_NS                    NUMBER,
+a_OS                      NUMBER,
+b                         NUMBER);
+
+drop table rkc_matfemale_sw_temp_params;
+
+create table rkc_matfemale_sw_temp_params as
+(SURVEY_YEAR              NUMBER,
+CRUISE                    NUMBER,
+FEMALE_WEIGHTED_GEAR_TEMP  NUMBER,
+A_BASE 			  NUMBER,
+AT			  NUMBER,
+A			  NUMBER,
+LOG10_A                   NUMBER,
+B			  NUMBER);                     
+
+
+
+drop table cb_male_sw_temp_params;
+
+create table cb_male_sw_temp_params as
+(SURVEY_YEAR              NUMBER,
+CRUISE                    NUMBER,
+MALE_WEIGHTED_GEAR_TEMP   NUMBER,
+a_base                    NUMBER,
+aT                       NUMBER,
+aT_OS                     NUMBER,
+aOS                       NUMBER,
+a_NS_final                NUMBER,
+a_OS_final                NUMBER,
+b                         NUMBER,
+bmat                      NUMBER,
+bOS                       NUMBER,
+bmat_OS                   NUMBER,
+a_NS                      NUMBER,
+a_OS                      NUMBER,
+bNS_immat                 NUMBER,
+bOS_immat                 NUMBER,
+bNS_mat                 NUMBER,
+bOS_mat                 NUMBER);
+ 
+
+drop table co_male_sw_temp_params;
+
+create table co_male_sw_temp_params as
+(SURVEY_YEAR              NUMBER,
+CRUISE                    NUMBER,
+MALE_WEIGHTED_GEAR_TEMP   NUMBER,
+a_base                    NUMBER,
+aT                        NUMBER,
+aT_OS                     NUMBER,
+aOS                       NUMBER,
+a_NS_final                NUMBER,
+a_OS_final                NUMBER,
+b                         NUMBER,
+bmat                      NUMBER,
+bOS                       NUMBER,
+bmat_OS                   NUMBER,
+a_NS                      NUMBER,
+a_OS                      NUMBER,
+bNS_immat                 NUMBER,
+bOS_immat                 NUMBER,
+bNS_mat                   NUMBER,
+bOS_mat                   NUMBER);
+
+
+-------------------NOW FEMALES ----------------
+drop table rkc_matfemale_sw_temp_params;
+
+create table rkc_matfemale_sw_temp_params as
+(SURVEY_YEAR              NUMBER,
+CRUISE                    NUMBER,
+FEMALE_WEIGHTED_GEAR_TEMP  NUMBER,
+A_BASE 			  NUMBER,
+AT			  NUMBER,
+A			  NUMBER,
+LOG10_A                   NUMBER,
+B			  NUMBER);                     
+
+
+drop table cb_matfemale_sw_temp_params;
+
+create table cb_matfemale_sw_temp_params as
+(SURVEY_YEAR              NUMBER,
+CRUISE                    NUMBER,
+MATURE_FEMALE_WEIGHTED_GEAR_TEMP  NUMBER,
+a_base                    NUMBER,
+aT                        NUMBER,
+aOS                       NUMBER,
+b                         NUMBER,
+BT                        NUMBER,
+bOS                       NUMBER,
+a_NS                      NUMBER,
+a_OS                      NUMBER,
+LOG10_A_NS                NUMBER,
+LOG10_A_OS                NUMBER,
+B_NS                      NUMBER,
+B_OS                      NUMBER);
+
+
+drop table co_matfemale_sw_temp_params;
+
+create table co_matfemale_sw_temp_params as
+(SURVEY_YEAR              NUMBER,
+CRUISE                    NUMBER,
+MATURE_FEMALE_WEIGHTED_GEAR_TEMP  NUMBER,
+a_base                    NUMBER,
+aT                        NUMBER,
+aOS                       NUMBER,
+b                         NUMBER,
+BT                        NUMBER,
+bOS                       NUMBER,
+a_NS                      NUMBER,
+a_OS                      NUMBER,
+LOG10_A_NS                NUMBER,
+LOG10_A_OS                NUMBER,
+B_NS                      NUMBER,
+B_OS                      NUMBER);

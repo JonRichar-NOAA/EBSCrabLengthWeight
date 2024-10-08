@@ -57,6 +57,7 @@ plot(sc3_matfemales$WEIGHT~sc3_matfemales$WIDTH)
 plot(sc4_matfemales$WEIGHT~sc4_matfemales$WIDTH)
 
 ########################## Aggregate by New shell/old shell #####################################
+ss_immatfemales<-subset(df1,SEX==2 & CLUTCH_SIZE==0 & SHELL_CONDITION==1)
 ns_immatfemales<-subset(df1,SEX==2 & CLUTCH_SIZE==0 & SHELL_CONDITION==2)
 ns_matfemales<-subset(df1,SEX==2 & CLUTCH_SIZE>0 & SHELL_CONDITION==2)
 os_matfemales<-subset(df1,SEX==2 & CLUTCH_SIZE>0 & SHELL_CONDITION==3|SHELL_CONDITION==4)
@@ -380,10 +381,15 @@ sdA_base
 ############################ combine data sets and plot, using shell condition as grouping factor############################################################
 os_matfemales_analysis$SC <- "OS"
 ns_matfemales_analysis$SC <- "NS"
+ns_immatfemales_analysis$SC<-"NS"
+
+analysis_females<-rbind(ns_immatfemales_analysis,ns_matfemales_analysis,os_matfemales_analysis)
+write.csv(analysis_females,"EBS_CB_Analysis_immat_matfemales_log10.csv")
+
+
 
 analysis_matfemales<-rbind(ns_matfemales_analysis,os_matfemales_analysis)
-analysis_matfemales
-write.csv(analysis_matfemales,"EBS_CB_Analysis_matfemales.csv")
+write.csv(analysis_matfemales,"EBS_CB_Analysis_matfemales_log10.csv")
 
 ggplot(analysis_matfemales, aes(x = WIDTH, y = WEIGHT, group = SC)) +
      geom_point(aes(colour = factor(SC)))

@@ -52,7 +52,7 @@ hist(sc3_matfemales$WEIGHT)
 hist(sc4_matfemales$WEIGHT)
 hist(sc5_matfemales$WEIGHT)
 
-hist(sc1_barrenfemales$WEIGHT)
+#hist(sc1_barrenfemales$WEIGHT)
 hist(sc2_barrenfemales$WEIGHT)
 hist(sc3_barrenfemales$WEIGHT)
 hist(sc4_barrenfemales$WEIGHT)
@@ -395,10 +395,14 @@ sdA_base
 ############################ combine data sets and plot, using shell condition as grouping factor############################################################
 os_matfemales_analysis$SC <- "OS"
 ns_matfemales_analysis$SC <- "NS"
+ns_immatfemales_analysis$SC <-"NS"
 
 analysis_females<-rbind(ns_matfemales_analysis,os_matfemales_analysis)
+write.csv(analysis_females,"EBS_CO_Analysis_matfemales_log10.csv")
 
-write.csv(analysis_females,"EBS_CO_Analysis_females.csv")
+analysis_females<-rbind(ns_immatfemales_analysis,ns_matfemales_analysis,os_matfemales_analysis)
+write.csv(analysis_females,"EBS_CO_Analysis_immat_matfemales_log10.csv")
+
 
 ggplot(analysis_females, aes(x = WIDTH, y = WEIGHT, group = SC)) +
      geom_point(aes(colour = factor(SC)))

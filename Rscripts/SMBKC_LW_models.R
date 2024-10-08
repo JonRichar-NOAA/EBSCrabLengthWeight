@@ -7,7 +7,7 @@ library(nlme)
 library(ggpubr)
 library(ggsci)
 
-setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA")
+setwd("C:/Users/jon.richar/Work/GitRepos/EBSCrabLengthWeight/DATA")
 df<-read.csv("SMBKC_weightDB_analysis.csv")
 
 df1<-subset(df, WEIGHT>0 & SEX==1)

@@ -41,11 +41,13 @@ sc3_males<-subset(df1,SEX==1 & SHELL_CONDITION==3)
 sc4_males<-subset(df1,SEX==1 & SHELL_CONDITION==4)
 sc5_males<-subset(df1,SEX==1 & SHELL_CONDITION==5)
 
-hist(sc1_males$WEIGHT)
+all_males<-subset(df1,SEX==1)
+
+#hist(sc1_males$WEIGHT)
 hist(sc2_males$WEIGHT)
 hist(sc3_males$WEIGHT)
-hist(sc4_males$WEIGHT)
-hist(sc5_males$WEIGHT)
+#hist(sc4_males$WEIGHT)
+#hist(sc5_males$WEIGHT)
 
 hist(log(sc2_males$WEIGHT))
 hist(sc3_males$WEIGHT)
@@ -241,21 +243,19 @@ abline(a=cf4[1,1],b=cf4[2,1])
 
 ################################################################################################
 ######################### plot baseline for comparison #########################################
+setwd("C:/Users/jon.richar/Work/GitRepos/EBSCrabLengthWeight/DATA/")
+
 base_dat<-read.csv("Baseline_Parameters.csv")
 
 plot(log10.weight~log10.width,data=ns_males_analysis)
 abline(a=cf2[1,1],b=cf2[2,1])
 abline(a=cf4[1,1],b=cf4[2,1])
-abline(a=base_dat[1,4],b=base_dat[2,4],col=3) #plot baseline for comparison
+abline(a=base_dat[1,4],b=base_dat[2,4],col=4,ldw=2) #plot baseline for comparison
 
 cf2
 base_dat[1,4]
 base_dat[2,4]
 
-plot(log10.weight~log10.width,data=ns_males_analysis, ylim=c(4,10),xlim=c(4.0,5.0))
-abline(a=cf2[1,1],b=cf2[2,1])
-abline(a=cf4[1,1],b=cf4[2,1])
-abline(a=base_dat[1,4],b=base_dat[2,4],col=3) #plot baseline for comparison
 
 ################################################################################################
 ######################## Apply bias-correction procedure #####################################
@@ -348,5 +348,139 @@ reg_mod<-lm(log10.weight~SC/log10.width-1,data=analysis_males)
 summary(reg_mod)
 
 
+######################################################################################################
+############################ ALL MALES ###############################################################
+######################################################################################################
+
+plot(all_males$WEIGHT~all_males$WIDTH)
+############################## Plot base data in GG plot ############################################################
+dev.new()
+p<-ggplot(all_males, aes(x = WIDTH, y = WEIGHT)) +
+  geom_point()
+p+ labs(title="New shell (SC2) males")
+
+############################# Add fields for analysis ########################################################
+Year <- substring(all_males$CRUISE, 1,4) 
+
+YEAR <- as.factor(Year)
+log10.width<-log10(all_males$WIDTH)
+log10.weight <- log10(all_males$WEIGHT)
+all_male<-as.data.frame(cbind(all_males,YEAR,log10.width,log10.weight))   		 # Bind new data objects and crab data in data frame  
+all_male                    							  		 # inspect data
+names(all_male)											 # Check column names
 
 
+############################ Plot log transformed data in GGplot #############################################
+dev.new()
+p<-ggplot(all_male, aes(x = log10.width, y = log10.weight)) +
+  geom_point()
+p+ labs(x="log10(width)",y="log10(weight)", title="New shell (SC2) NBS males-log transformed")
+
+
+############################## Fit initial model ########################################################
+
+fit5<-lm(log10.weight~log10.width,data=all_male)
+summary(fit5)
+coef(fit5)
+############################## check diagnostics #################################################
+dev.new()
+par(mfrow=c(2,2))
+plot(fit5)
+plot(cooks.distance(fit5), pch=16, cex=0.5, main="Cook's distance with critical distance cutoff") 
+abline(h = 4/(nrow(all_male)), col=4,lwd=1.5)  # critical Cooks Distance cutline(> 4/nobs)
+
+all_male$Cooks_D <- cooks.distance(fit5)
+all_males_analysis<-subset(all_male, Cooks_D < (4/(nrow(all_male))))
+
+nrow(all_male)-nrow(all_males_analysis)    #79 obs removed based on Cook's Distance
+
+nrow(all_males_analysis)
+##################################################################################################
+############################# Plot using editted dataset #########################################
+dev.new()
+p<-ggplot(all_males_analysis, aes(x = WIDTH, y = WEIGHT)) +
+  geom_point()
+p+ labs(title="New shell (SC2) NBS males- infuential points removed")
+
+
+############################ log transformed ##################################################
+dev.new()
+p<-ggplot(all_males_analysis, aes(x = log10.width, y = log10.weight)) +
+  geom_point()
+p+ labs(x="log10(width)",y="log10(weight)", title="New shell (SC2) NBS males-log transformed, influential points removed")
+
+############################ Fit followup model ##########################################
+fit6<-lm(log10.weight~log10.width,data=all_males_analysis)
+summary(fit6)
+coef(fit6)
+
+cf6<-as.matrix(coef(fit6))
+
+
+##############################################################################################
+######################## Apply bias-correction procedure #####################################
+cf6
+names(fit6)
+names(summary(fit6))
+###############################################################################################
+v6<-(summary(fit6)$sigma)**2  #Variance 
+v6
+int<-cf6[1,1]
+A<-(10^(int)*10^(v6/2))
+A                         #0.0003428564 
+
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit6)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+sd
+sdA<-(10^(sd)*10^(v6/2))
+sdA
+
+sdA_base<-10^(sd)
+sdA_base
+##################### BIAS-CORRECTED PARAMETERS FOR NEW SHELL MODEL ###############################
+# Corrcted for NBS CO
+# a = 0.0003428564 
+# b = 3.031287
+
+
+
+
+###################### ############ ALTERNATIVE METHOD ######################################################################################################
+###########################################################################################################################################
+################################### COMBINE NS and OS males because of small OS population ##################################################
+analysis_males
+############################ Fit f model ##########################################
+fit5<-lm(log10.weight~log10.width,data=analysis_males)
+summary(fit5)
+coef(fit5)
+cf5<-as.matrix(coef(fit5))
+10^cf5[1,1]
+
+plot(log10.weight~log10.width,data=analysis_males)
+abline(a=cf5[1,1],b=cf5[2,1])
+
+
+################################################################################################
+######################## Apply bias-correction procedure #####################################
+###############################################################################################
+v5<-(summary(fit5)$sigma)**2  #Variance 
+v5
+int<-cf5[1,1]
+A<-(10^(int)*10^(v5/2))
+A                         #0.0003438363
+
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit4)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+sd
+sdA<-(10^(sd)*10^(v4/2))
+sdA
+
+sdA_base<-10^(sd)
+sdA_base
+##################### BIAS-CORRECTED PARAMETERS FOR COMBINED NBS NEW SHELL + OLD SHELL MODEL ###############################
+# a = 0.0003438363
+# b = 3.030540

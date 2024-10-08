@@ -16,23 +16,23 @@ dev.new()
 
 cb1<-ggplot(df.cb, aes(x = log10.width, y = log10.weight, group = SC)) +
      geom_point(aes(colour = SC))+
-	labs(x="Log10(Width)",y="Log10(Weight)", title="Male bairdi (New shell and old shell, log-transformed)")
+	labs(x="Log10(Width)",y="Log10(Weight)", title="Male Tanner crab (New shell and old shell, log-transformed)")
 
 # lines ONLY
 cb2<-ggplot(df.cb, aes(x = log10.width, y = log10.weight, group = SC,color = SC,shape=SC)) +
 	geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
-	labs(x="Log10(Width)",y="Log10(Weight)", title="Male bairdi (New shell and old shell, log-transformed)")
+	labs(x="Log10(Width)",y="Log10(Weight)", title="Male Tanner crab (New shell and old shell, log-transformed)")
 
 ##################### Opilio ###################################################
 # points only
 co1<-ggplot(df.co, aes(x = log10.width, y = log10.weight, group = SC)) +
      geom_point(aes(colour = SC))+
-	labs(x="Log10(Width)",y="Log10(Weight)", title="Male opilio (New shell and old shell, log-transformed)")
+	labs(x="Log10(Width)",y="Log10(Weight)", title="Male snow crab (New shell and old shell, log-transformed)")
 
 # lines ONLY
 co2<-ggplot(df.co, aes(x = log10.width, y = log10.weight, group = SC,color = SC,shape=SC)) +
 	geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+
-	labs(x="Log10(Width)",y="Log10(Weight)", title="Male opilio (New shell and old shell, log-transformed)")
+	labs(x="Log10(Width)",y="Log10(Weight)", title="Male snow crab (New shell and old shell, log-transformed)")
 
 ########################################################################################################################
 ############################### 4 panel ################################################################################

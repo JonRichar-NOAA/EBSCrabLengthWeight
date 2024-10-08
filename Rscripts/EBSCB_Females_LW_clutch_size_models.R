@@ -6,7 +6,7 @@ library(stats)
 library(nlme)
 library(ggpubr)
 
-setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA/")
+setwd("C:/Users/jon.richar/Work/GitRepos/EBSCrabLengthWeight/DATA")
 df<-read.csv("EBSCB_weightDB_analysis.csv")
 
 df1<-subset(df, WEIGHT>0 & SEX==2)
@@ -32,19 +32,34 @@ plot(df1$WEIGHT~df1$WIDTH)
 ########################## Aggregate by New shell/old shell #####################################
 
 noeggfemales<-subset(df1,SEX==2 & CLUTCH_SIZE<=1)
+ns_noeggfemales<-subset(df1,SEX==2 & CLUTCH_SIZE<=1& SHELL_CONDITION==2)
+
+ns_immatfemales<-subset(df1,SEX==2 & CLUTCH_SIZE==0& SHELL_CONDITION==2)
+
 ns_eggfemales<-subset(df1,SEX==2 & CLUTCH_SIZE>1 & SHELL_CONDITION==2)
 os_eggfemales<-subset(df1,SEX==2 & CLUTCH_SIZE>1 & SHELL_CONDITION==3|SHELL_CONDITION==4)
 
+ns_egg5females<-subset(df1,SEX==2 & CLUTCH_SIZE==5 & SHELL_CONDITION==2)
+os_egg5females<-subset(df1,SEX==2 & CLUTCH_SIZE==5 & SHELL_CONDITION==3|SHELL_CONDITION==4)
+
+ns_egg6females<-subset(df1,SEX==2 & CLUTCH_SIZE==6 & SHELL_CONDITION==2)
+os_egg6females<-subset(df1,SEX==2 & CLUTCH_SIZE==6 & SHELL_CONDITION==3|SHELL_CONDITION==4)
+
 #noeggfemales<-subset(df1,SEX==2 & CLUTCH_SIZE==1)
 #nrow(noeggfemales)
+hist(ns_egg5females$WEIGHT)
+hist(os_egg5females$WEIGHT)
+hist(ns_egg6females$WEIGHT)
+hist(os_egg6females$WEIGHT)
 
 
 #####################################################################################################################
 ############################ First model L-W relationship by shell condition #########################################
 #####################################################################################################################
 
+
 ######################################################################################################
-############################ Nonegg-bearing females ########################################################
+############################ Nonegg-bearing females ALL SC ########################################################
 ######################################################################################################
 plot(noeggfemales$WEIGHT~noeggfemales$WIDTH)
 ############################## Plot base data in GG plot ############################################################
@@ -87,7 +102,7 @@ abline(h = 4/(nrow(ns_female)), col=4,lwd=1.5)  # critical Cooks Distance cutlin
 ns_imfemale$Cooks_D <- cooks.distance(fit1)
 noeggfemales_analysis<-subset(ns_imfemale, Cooks_D < (4/(nrow(ns_imfemale))))
 
-nrow(ns_imfemale)-nrow(noeggfemales_analysis)    #94 obs removed based on Cook's Distance
+nrow(ns_imfemale)-nrow(noeggfemales_analysis)    #102 obs removed based on Cook's Distance
 nrow(noeggfemales_analysis)
 
 ##################################################################################################
@@ -143,9 +158,112 @@ sdA_base
 # b = 2.854783          #updated for females
 
 
+
+######################################################################################################
+############################ Nonegg-bearing females SC2 only ########################################################
+######################################################################################################
+plot(ns_noeggfemales$WEIGHT~ns_noeggfemales$WIDTH)
+############################## Plot base data in GG plot ############################################################
+dev.new()
+p<-ggplot(ns_noeggfemale, aes(x = WIDTH, y = WEIGHT)) +
+  geom_point()
+p+ labs(title="Non-egg bearing, SC2")
+
+############################# Add fields for analysis ########################################################
+Year <- substring(ns_noeggfemales$CRUISE, 1,4) 
+
+YEAR <- as.factor(Year)
+log.width<-log(ns_noeggfemales$WIDTH)
+log.weight <- log(ns_noeggfemales$WEIGHT)
+ns_imfemale<-as.data.frame(cbind(ns_noeggfemales,YEAR,log.width,log.weight))   		 # Bind new data objects and crab data in data frame  
+ns_imfemale                    							  		 # inspect data
+names(ns_imfemale)											 # Check column names
+
+
+############################ Plot log transformeddata in GGplot #############################################
+dev.new()
+p<-ggplot(ns_imfemale, aes(x = log.width, y = log.weight)) +
+  geom_point()
+p+ labs(x="ln(width)",y="ln(weight)", title="Non egg-bearing females-log transformed")
+
+
+############################## Fit initial model ########################################################
+
+fit1<-lm(log.weight~log.width,data=ns_imfemale)
+summary(fit1)
+coef(fit1)
+############################## check diagnostics #################################################
+dev.new()
+par(mfrow=c(2,2))
+
+plot(fit1)
+plot(cooks.distance(fit1), pch=16, cex=0.5, main="Cook's distance with critical distance cutoff") 
+abline(h = 4/(nrow(ns_female)), col=4,lwd=1.5)  # critical Cooks Distance cutline(> 4/nobs)
+
+ns_imfemale$Cooks_D <- cooks.distance(fit1)
+ns_noeggfemales_analysis<-subset(ns_imfemale, Cooks_D < (4/(nrow(ns_imfemale))))
+
+nrow(ns_imfemale)-nrow(ns_noeggfemales_analysis)    #94 obs removed based on Cook's Distance
+nrow(ns_noeggfemales_analysis)
+
+##################################################################################################
+############################# Plot using editted dataset #########################################
+dev.new()
+p<-ggplot(ns_noeggfemales_analysis, aes(x = WIDTH, y = WEIGHT)) +
+  geom_point()
+p+ labs(title="New shell (N infuential points removed")
+
+
+############################ log transformed ##################################################
+dev.new()
+p<-ggplot(ns_noeggfemales_analysis, aes(x = log.width, y = log.weight)) +
+  geom_point()
+p+ labs(x="ln(width)",y="ln(weight)", title="Non-egg bearing females-log transformed, influential points removed")
+
+############################ Fit followup model ##########################################
+fit20<-lm(log.weight~log.width,data=ns_noeggfemales_analysis)
+summary(fit20)
+coef(fit20)
+
+cf20<-as.matrix(coef(fit20))
+
+exp(cf20[1,1])
+# log(W) = -7.624769   + 2.854783   * log(L) on transformed scale       #updated for females
+# W = exp(-7.624769 ) * L^(2.854783 )  on original scale                #updated for females
+# a = 0.0004882081                                                  #updated for females
+# b = 2.854783                                                       #updated for females
+##############################################################################################
+######################## Apply bias-correction procedure #####################################
+cf20
+names(fit20)
+names(summary(fit20))
+###############################################################################################
+v2<-(summary(fit20)$sigma)**2  #Variance 
+v2
+int<-cf20[1,1]
+A<-(exp(int)*exp(v2/2))
+A                         #0.0004902272 
+
+####################### Variance for parameter A/intercept ########################################
+#vcov(fit2)
+Av<-vcov(fit20)[1,1]   #extract variance for intercept
+sd<-sqrt(Av)          #take square root to create standard deviation
+sd
+sdA<-(exp(sd)*exp(v2/2))
+sdA
+
+sdA_base<-exp(sd)
+sdA_base
+##################### BIAS-CORRECTED PARAMETERS FOR NON_EGG BEARING FEMALE MODEL ###############################
+# a = 0.0004902272   #updated for females
+# b = 2.854783          #updated for females
+
+
 ######################################################################################################
 ############################ New shell ###############################################################
 ######################################################################################################
+
+
 
 plot(ns_eggfemales$WEIGHT~ns_eggfemales$WIDTH)
 ############################## Plot base data in GG plot ############################################################

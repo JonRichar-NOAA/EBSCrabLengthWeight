@@ -1,0 +1,3 @@
+Rerun clutch models with only 5 and 6 parameterized separately
+
+Rerun with CS6 as null

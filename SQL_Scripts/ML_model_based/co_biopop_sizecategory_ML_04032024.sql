@@ -55,7 +55,7 @@ group by c.hauljoin,
 drop table co_number_size1_female;
 
 create table co_number_size1_female as
-select c.hauljoin,c.vessel,c.cruise,c.haul,h.gis_station,species_code,clutch_size,
+select c.hauljoin,c.vessel,c.cruise,c.haul,h.gis_station,species_code,shell_condition,clutch_size,
 (trunc(width/1) * 1)size1,
 (sum(CASE
 		 when species_code = 68580
@@ -74,6 +74,7 @@ group by c.hauljoin,
 		 c.haul,
 		 h.gis_station,
 		 species_code,
+         shell_condition,
      clutch_size,
 		 (trunc(width/1) * 1);
 
@@ -116,33 +117,37 @@ group by c.hauljoin,
 drop table co_weight_grams_male;
 
 create table co_weight_grams_male as
-select hauljoin,vessel,cruise,haul,gis_station,species_code,shell_condition,size1,
+select hauljoin,vessel,a.cruise,haul,gis_station,species_code,shell_condition,size1,
 (CASE
 --    WHEN cruise < 201001
 --      THEN ((0.00023 * (power(size1,3.12948))) * number_male_size1) 
-    WHEN cruise >= 197501 and shell_condition in (1,2)
-      THEN ((0.000237 * (power(size1,3.119509))) * number_male_size1)
-    WHEN cruise >= 197501 and shell_condition in (3,4,5,0)
-      THEN ((0.000343 * (power(size1,3.051748))) * number_male_size1)
+    WHEN a.cruise >= 197501 and shell_condition in (1,2)
+      THEN ((p.log10_a_ns * (power(size1,b_ns))) * number_male_size1)
+    WHEN a.cruise >= 197501 and shell_condition in (3,4,5,0)
+      THEN ((p.log10_a_os * (power(size1,b_os))) * number_male_size1)
     ELSE 0
     END) wgt_male_size1
-from co_number_size1_male 
+from co_number_size1_male a, co_male_sw_temp_params p
+where a.cruise = p.cruise
 order by cruise,vessel,haul,gis_station,size1;
 
 drop table co_weight_grams_female;
 
 create table co_weight_grams_female as
-select hauljoin,vessel,cruise,haul,gis_station,species_code,clutch_size,size1,
+select hauljoin,vessel,a.cruise,haul,gis_station,species_code,shell_condition,clutch_size,size1,
 (CASE
 --    WHEN cruise < 201001
 --      THEN ((0.00253 * (power(size1,2.56427))) * number_female_size1)
-    WHEN cruise >= 197501 and clutch_size <= 1
-      THEN ((0.001047 * (power(size1,2.708367))) * number_female_size1)
-    WHEN cruise >= 197501 and clutch_size > 1
-      THEN ((0.001158 * (power(size1,2.708793))) * number_female_size1)  
+    WHEN a.cruise >= 197501 and clutch_size <= 1
+      THEN ((0.000778 * (power(size1,2.780558))) * number_female_size1)
+    WHEN a.cruise >= 197501 and clutch_size > 1 and shell_condition in (1,2)
+      THEN ((p.log10_a_ns  * (power(size1,p.b_ns))) * number_female_size1)
+    WHEN a.cruise >= 197501 and clutch_size > 1 and shell_condition in (3,4,5,0)
+      THEN ((p.log10_a_os  * (power(size1,p.b_os))) * number_female_size1)
     ELSE 0
     END) wgt_female_size1
-from co_number_size1_female
+from co_number_size1_female a, co_matfemale_sw_temp_params p
+where a.cruise = p.cruise
 order by cruise,vessel,haul,gis_station,size1;
 
 
@@ -1005,9 +1010,9 @@ from co_sizegroup_stderr_bio;
 
 -- Final output for stocks
 
-drop table co_bio_matfem_newmodel;
+drop table co_bio_matfem_newmodel_ML;
 
-create table co_bio_matfem_newmodel as
+create table co_bio_matfem_newmodel_ML as
 select a.survey_year,
 --sum_bio_male_le77 biomass_male_le77,cv_bio_male_le77 cv_biomass_male_le77,ci_bio_male_le77 ci_biomass_male_le77,
 sum_bio_male_ge25 biomass_male_ge25,cv_bio_male_ge25 cv_biomass_male_ge25,ci_bio_male_ge25 ci_biomass_male_ge25,
@@ -1027,7 +1032,7 @@ and a.survey_year = c.survey_year
 --and a.survey_year = 2013
 order by a.survey_year;
 
-
+/*
 drop table co_pop_matfem_newmodel;
 
 create table co_pop_matfem_newmodel as

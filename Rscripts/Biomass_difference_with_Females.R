@@ -8,6 +8,7 @@ library(ggpubr)
 library(ggplot2)
 
 setwd("C:/Users/Jon.Richar/Work/GitRepos/LengthWeight/EBSCrabLengthWeight/DATA/Biomass_DATA")
+setwd("C:/Users/jon.richar/Work/GitRepos/EBSCrabLengthWeight/DATA/Biomass_DATA")
 ##################### Add data ###############################################
 bbrkc_base<-read.csv("rk_bb_bio_oldmodel.csv")
 bbrkc_new<-read.csv("rk_bb_bio_newmodel.csv")
@@ -418,12 +419,12 @@ bk_fem_bias<-ggplot(bkc_fem_bias,aes(x=bk_year))+
 ggplot(e166cb_bias,aes(x=cb_year))+
   geom_line(aes(y=e166cb_bias_mat_dif,color = "Mature male"))+
   geom_line(aes(y=e166cb_bias_leg_dif,color="Legal male"))+
-  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="Eastern district Bairdi - bias corrected")
+  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="Eastern district Tanner - bias corrected")
 
 e166_bias<-ggplot(e166cb_bias,aes(x=cb_year))+
   geom_line(aes(y=e166cb_bias_mat_dif,color = "Mature male"))+
   geom_line(aes(y=e166cb_bias_leg_dif,color="Legal male"))+
-  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="Eastern district Bairdi - bias corrected")
+  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="Eastern district Tanner - bias corrected")
 
 
 # W166 CB
@@ -431,12 +432,12 @@ e166_bias<-ggplot(e166cb_bias,aes(x=cb_year))+
 ggplot(w166cb_bias,aes(x=cb_year))+
   geom_line(aes(y=w166cb_bias_mat_dif,color = "Mature male"))+
   geom_line(aes(y=w166cb_bias_leg_dif,color="Legal male"))+
-  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="Western district Bairdi - bias corrected")
+  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="Western district Tanner - bias corrected")
 
 w166_bias<-ggplot(w166cb_bias,aes(x=cb_year))+
   geom_line(aes(y=w166cb_bias_mat_dif,color = "Mature male"))+
   geom_line(aes(y=w166cb_bias_leg_dif,color="Legal male"))+
-  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="Western district Bairdi - bias corrected")
+  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="Western district Tanner - bias corrected")
 
 # Bairdi Females (East + West)
 
@@ -444,12 +445,12 @@ w166_bias<-ggplot(w166cb_bias,aes(x=cb_year))+
 ggplot(cb_fem_bias,aes(x=cb_year))+
   geom_line(aes(y=e166cb_bias_matfem_dif,color = "Eastern district mature females"))+
   geom_line(aes(y=w166cb_bias_matfem_dif,color="Western district mature females"))+
-  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="East/West Bairdi - bias corrected")
+  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="East/West Tanner - bias corrected")
 
 cbfem_bias<-ggplot(cb_fem_bias,aes(x=cb_year))+
   geom_line(aes(y=e166cb_bias_matfem_dif,color = "Eastern district mature females"))+
   geom_line(aes(y=w166cb_bias_matfem_dif,color="Western district mature females"))+
-  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="East/West Bairdi - bias corrected")
+  labs(color = "Category",x = "Survey Year", y = "Percent difference",title="East/West Tanner - bias corrected")
 
 # EBS CO
 
